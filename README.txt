@@ -1,0 +1,1 @@
+You can find the assignment report and class diagrams in the documentation folder
