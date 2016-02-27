@@ -15,6 +15,7 @@ public class BTPUser {
     private final String firstname;
     private final String middlename;
     private final String surname;
+    private String new_password;
     private final BTPKeyContainer extra;
     
     public BTPUser(int user_id, String title, String firstname, String middlename, String surname, BTPKeyContainer extra) {
@@ -50,4 +51,15 @@ public class BTPUser {
         return this.title + " " + this.firstname + " " + this.middlename + " " + this.surname;
     }
     
+    public BTPKeyContainer getExtraDetail() {
+        return this.extra;
+    }
+    
+    public void setNewPassword(String password) {
+        this.new_password = password;
+    }
+    
+    public String getPasswordToBeUpdated() {
+        return this.new_password;
+    }
 }
