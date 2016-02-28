@@ -43,7 +43,12 @@ public class BTPServerClientAcceptor implements Runnable {
             
             if (client != null) {
                 this.server.addClient(client);
+                // Start the new client thread
+                new Thread(client).start();
+            } else {
+                socket.close();
             }
+            
         } catch (IOException ex) {
             Logger.getLogger(BTPServerClientAcceptor.class.getName()).log(Level.SEVERE, null, ex);
         }
