@@ -10,6 +10,13 @@
 <project name="BankTransmissionProtocol" default="default" basedir=".">
     <description>Builds, tests, and runs the project BankTransmissionProtocol.</description>
     <import file="nbproject/build-impl.xml"/>
+    
+    <target name="-pre-jar" >
+        <propertyfile file="${src.dir}\version.properties">
+            <entry key="BUILD" value="1" type="int" operation="+"/>
+        </propertyfile>
+    </target> 
+
     <!--
 
     There exist several targets which are by default empty and which can be 
