@@ -5,6 +5,7 @@
  */
 package BTP;
 
+import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -13,7 +14,7 @@ import java.net.Socket;
  */
 public class BTPEmployeeClient extends BTPClient{
 
-    public BTPEmployeeClient(Socket socket) {
+    public BTPEmployeeClient(Socket socket) throws IOException {
         super(socket);
     }
     

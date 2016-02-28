@@ -5,6 +5,7 @@
  */
 package BTP;
 
+import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -13,8 +14,9 @@ import java.net.Socket;
  */
 public class BTPCustomerClient extends BTPClient{
 
-    public BTPCustomerClient(Socket socket) {
+    public BTPCustomerClient(Socket socket) throws IOException {
         super(socket);
+        
     }
     
     public boolean login(int customer_id, String password) {
