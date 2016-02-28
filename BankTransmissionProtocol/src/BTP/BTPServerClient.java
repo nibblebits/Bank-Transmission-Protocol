@@ -5,6 +5,7 @@
  */
 package BTP;
 
+import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -20,7 +21,7 @@ public abstract class BTPServerClient extends BTPClient implements Runnable {
     
     private final BTPServer server;
     
-    public BTPServerClient(BTPServer server, Socket client) {
+    public BTPServerClient(BTPServer server, Socket client) throws IOException {
         super(client);
         this.server = server;
     }
