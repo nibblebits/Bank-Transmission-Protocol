@@ -7,6 +7,9 @@ package BTP;
 
 import java.io.IOException;
 import java.net.Socket;
+import BTP.exceptions.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -16,15 +19,34 @@ public class BTPCustomerClient extends BTPClient{
 
     public BTPCustomerClient(Socket socket) throws IOException {
         super(socket);
-        
+       
     }
     
     public boolean login(int customer_id, String password) {
-        return true;
+        // Send the customer client authentication type.
+        this.getPrintStream().write(BTPClient.Customer);
+        this.getPrintStream().println(Integer.toString(customer_id));
+        this.getPrintStream().println(password);
+        try {
+            int response = this.getBufferedReader().read();
+            if (response == 0) {
+                // Set this client as authenticated
+                this.setAuthenticated(true);
+                return true;
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(BTPCustomerClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return false;
     }
     
-    public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) {
-        
+    public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) throws BTPPermissionDeniedException {
+        if (this.isAuthenticated()) {
+            
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException("You must be logged in to perform a transfer");
+        }
     }
     
     public double getBalance(BTPAccount account) {

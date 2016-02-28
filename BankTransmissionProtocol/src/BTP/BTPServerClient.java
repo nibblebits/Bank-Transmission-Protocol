@@ -14,11 +14,6 @@ import java.net.Socket;
  */
 public abstract class BTPServerClient extends BTPClient implements Runnable {
     
-    public static int Customer = 0;
-    public static int Employee = 1;
-    public static int Transfer = 2;
-    public static int Administrator = 3;
-    
     private final BTPServer server;
     
     public BTPServerClient(BTPServer server, Socket client) throws IOException {

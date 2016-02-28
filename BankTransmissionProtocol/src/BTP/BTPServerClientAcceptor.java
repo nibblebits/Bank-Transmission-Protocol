@@ -5,7 +5,9 @@
  */
 package BTP;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -29,15 +31,16 @@ public class BTPServerClientAcceptor implements Runnable {
     public void run() {
         try {
             Socket socket = server_socket.accept();
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             BTPServerClient client = null;
-            int auth_type = socket.getInputStream().read();
-            if (auth_type == BTPServerClient.Customer) { // Customer Login
+            int auth_type = input.read();
+            if (auth_type == BTPClient.Customer) { // Customer Login
                 client = new BTPServerCustomerClient(this.server, socket);
-            } else if(auth_type == BTPServerClient.Employee) { // Employee login
+            } else if(auth_type == BTPClient.Employee) { // Employee login
                 client = new BTPServerEmployeeClient(this.server, socket);
-            } else if(auth_type == BTPServerClient.Transfer) { // Transfer Login
+            } else if(auth_type == BTPClient.Transfer) { // Transfer Login
                 client = new BTPServerTransferClient(this.server, socket);
-            } else if(auth_type == BTPServerClient.Administrator) { // Administrator Login
+            } else if(auth_type == BTPClient.Administrator) { // Administrator Login
                 client = new BTPServerAdministratorClient(this.server, socket);
             }
             
