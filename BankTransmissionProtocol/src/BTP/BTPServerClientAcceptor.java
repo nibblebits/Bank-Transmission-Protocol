@@ -31,13 +31,13 @@ public class BTPServerClientAcceptor implements Runnable {
             Socket socket = server_socket.accept();
             BTPServerClient client = null;
             int auth_type = socket.getInputStream().read();
-            if (auth_type == 0) { // Customer Login
+            if (auth_type == BTPServerClient.Customer) { // Customer Login
                 client = new BTPServerCustomerClient(this.server, socket);
-            } else if(auth_type == 1) { // Employee login
+            } else if(auth_type == BTPServerClient.Employee) { // Employee login
                 client = new BTPServerEmployeeClient(this.server, socket);
-            } else if(auth_type == 2) { // Transfer Login
+            } else if(auth_type == BTPServerClient.Transfer) { // Transfer Login
                 client = new BTPServerTransferClient(this.server, socket);
-            } else if(auth_type == 3) { // Administrator Login
+            } else if(auth_type == BTPServerClient.Administrator) { // Administrator Login
                 client = new BTPServerAdministratorClient(this.server, socket);
             }
             
