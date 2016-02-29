@@ -78,7 +78,7 @@ public class BTPSystem {
     }
     
     public BTPServer newServer(BTPServerEventHandler eventHandler) {
-        return new BTPServer(eventHandler);
+        return new BTPServer(this, eventHandler);
     }
     
     public BTPBank getOurBank() {
