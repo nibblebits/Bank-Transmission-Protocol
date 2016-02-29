@@ -44,8 +44,8 @@ public abstract class BTPServerClient extends BTPClient implements Runnable {
         }
     }
     
-    protected abstract void authenticate() throws IOException;
-    protected abstract void handleSocketInput() throws IOException;
+    protected abstract void authenticate() throws Exception;
+    protected abstract void handleSocketInput() throws Exception;
     
     public BTPServer getServer() {
         return this.server;
