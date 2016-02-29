@@ -7,6 +7,8 @@ package BTP;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -23,11 +25,27 @@ public abstract class BTPServerClient extends BTPClient implements Runnable {
     
    
     @Override
-    public void run() {
-        this.handleSocketInput();
+    public void run()  {
+        try {
+            this.authenticate();
+        } catch (Exception ex) {
+            // They failed to authenticate so return.
+            return;
+        }
+        
+        while(true) {
+            try {
+                this.handleSocketInput();
+            } catch (Exception ex) {
+                // Something went wrong? Could be anything so log the error and return.
+                Logger.getLogger(BTPServerClient.class.getName()).log(Level.SEVERE, null, ex);
+                return;
+            }
+        }
     }
     
-    protected abstract void handleSocketInput();
+    protected abstract void authenticate() throws IOException;
+    protected abstract void handleSocketInput() throws IOException;
     
     public BTPServer getServer() {
         return this.server;

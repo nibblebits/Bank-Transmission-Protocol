@@ -24,6 +24,11 @@ public class BTPServerTransferClient extends BTPServerClient {
     }
     
     @Override
+    protected void authenticate() {
+        
+    }
+    
+    @Override
     protected void handleSocketInput() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

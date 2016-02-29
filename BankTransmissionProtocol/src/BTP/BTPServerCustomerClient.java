@@ -7,6 +7,8 @@ package BTP;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -23,6 +25,13 @@ public class BTPServerCustomerClient extends BTPServerClient {
     @Override
     public void run() {
         super.run();
+    }
+    
+    @Override
+    protected void authenticate() throws IOException {
+        int customer_id = Integer.getInteger(this.getBufferedReader().readLine());
+        String password = this.getBufferedReader().readLine();
+        this.getServer().getEventHandler().
     }
     
     @Override
