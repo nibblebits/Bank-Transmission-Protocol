@@ -7,8 +7,6 @@ package BTP;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -28,10 +26,23 @@ public class BTPServerCustomerClient extends BTPServerClient {
     }
     
     @Override
-    protected void authenticate() throws IOException {
+    protected void authenticate() throws Exception {
         int customer_id = Integer.getInteger(this.getBufferedReader().readLine());
         String password = this.getBufferedReader().readLine();
-        this.getServer().getEventHandler().
+        /*
+           Here we attempt to call the event handlers customerLogin method so that the server may authenticate the customer.
+           Upon failure the event handler can throw any exception at us.
+        */
+        try {
+            this.getServer().getEventHandler().customerLogin(new CustomerLoginEvent(customer_id, password));
+            /*
+                If we reached this point with no exception thrown then its safe to assume that the customer 
+                has logged in succesfully.
+            */
+            this.setAuthenticated(true);
+        } catch(Exception ex) {
+            throw ex;
+        }
     }
     
     @Override
