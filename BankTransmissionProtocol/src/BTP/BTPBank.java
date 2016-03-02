@@ -10,12 +10,23 @@ package BTP;
  * @author Daniel
  */
 class BTPBank {
-    private String bank_sortcode;
-    private String bank_authcode;
-    private String bank_address;
-    private int bank_port;
-    public BTPBank(String bank_sortcode, String bank_authcode, String bank_address) {
-        
+    private final String bank_sortcode;
+    private final String bank_authcode;
+    private final String bank_address;
+    private final int bank_port;
+    
+    public BTPBank(String bank_sortcode, String bank_address, int bank_port) {
+        this.bank_sortcode = bank_sortcode;
+        this.bank_address = bank_address;
+        this.bank_port = bank_port;
+        this.bank_authcode = "";
+    }
+    
+    public BTPBank(String bank_sortcode, String bank_authcode, String bank_address, int bank_port) {
+        this.bank_sortcode = bank_sortcode;
+        this.bank_authcode = bank_authcode;
+        this.bank_address = bank_address;
+        this.bank_port = bank_port;
     }
     
     public String getSortcode() {

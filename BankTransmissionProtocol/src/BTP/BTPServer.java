@@ -21,15 +21,15 @@ public class BTPServer {
     private BTPSystem system;
     
     public BTPServer(BTPSystem system, BTPServerEventHandler eventHandler) {
-        this.port = -1;
+        this.port = system.getOurBank().getPort();
         this.server_socket = null;
         this.client = new ArrayList<BTPClient>();
         this.eventHandler = eventHandler;
         this.system = system;
     }
     
-    public void listen(int port) throws IOException {
-        this.server_socket = new ServerSocket(port);
+    public void listen() throws IOException {
+        this.server_socket = new ServerSocket(this.port);
         // Create a new thread that will listen for clients
         new Thread(new BTPServerClientAcceptor(this, this.server_socket)).start();
     }
