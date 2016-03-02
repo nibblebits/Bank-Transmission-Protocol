@@ -9,7 +9,7 @@ package BTP;
  *
  * @author Daniel
  */
-class BTPBank {
+public class BTPBank {
     private final String bank_sortcode;
     private final String bank_authcode;
     private final String bank_address;
