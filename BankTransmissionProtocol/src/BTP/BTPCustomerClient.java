@@ -22,17 +22,25 @@ public class BTPCustomerClient extends BTPClient{
        
     }
     
-    public boolean login(int customer_id, String password) {
+    public boolean login(int customer_id, String password) throws BTPPermissionDeniedException, BTPDataException {
         // Send the customer client authentication type.
         this.getPrintStream().write(BTPClient.Customer);
         this.getPrintStream().println(Integer.toString(customer_id));
         this.getPrintStream().println(password);
+        this.getPrintStream().flush();
         try {
             int response = this.getBufferedReader().read();
-            if (response == 0) {
+            if (response == BTPResponseCode.ALL_OK) {
                 // Set this client as authenticated
                 this.setAuthenticated(true);
                 return true;
+            } else {
+               String message = this.getBufferedReader().readLine();
+               if (response == BTPResponseCode.PERMISSION_DENIED_EXCEPTION) {
+                   throw new BTP.exceptions.BTPPermissionDeniedException(message);
+               } else if(response == BTPResponseCode.DATA_EXCEPTION) {
+                   throw new BTP.exceptions.BTPDataException(message);
+               }
             }
         } catch (IOException ex) {
             Logger.getLogger(BTPCustomerClient.class.getName()).log(Level.SEVERE, null, ex);

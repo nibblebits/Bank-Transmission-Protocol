@@ -14,7 +14,7 @@ import java.net.Socket;
  */
 public class BTPServerCustomerClient extends BTPServerClient {
 
-    private BTPCustomer customer;
+    private final BTPCustomer customer;
     public BTPServerCustomerClient(BTPServer server, Socket client) throws IOException {
         super(server, client);
         this.customer = null;
@@ -27,7 +27,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
     
     @Override
     protected void authenticate() throws Exception {
-        int customer_id = Integer.getInteger(this.getBufferedReader().readLine());
+        int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
         String password = this.getBufferedReader().readLine();
         /*
            Here we attempt to call the event handlers customerLogin method so that the server may authenticate the customer.
@@ -39,10 +39,19 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 If we reached this point with no exception thrown then its safe to assume that the customer 
                 has logged in succesfully.
             */
+            // Send a 0 to state that the authentication was succesful
+            this.getPrintStream().write(0);
             this.setAuthenticated(true);
-        } catch(Exception ex) {
+        } catch(BTP.exceptions.BTPPermissionDeniedException ex) {
+            // Send a 1 since their was a permissio
+            this.getPrintStream().write(1);
+            // Send the failure message
+            this.getPrintStream().println(ex.getMessage());
             throw ex;
         }
+        
+        // Flush the print stream
+        this.getPrintStream().flush();
     }
     
     @Override

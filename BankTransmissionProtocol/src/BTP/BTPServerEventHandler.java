@@ -10,7 +10,7 @@ package BTP;
  * @author Daniel
  */
 public interface BTPServerEventHandler {
-    public void customerLogin(CustomerLoginEvent event);
+    public void customerLogin(CustomerLoginEvent event) throws BTP.exceptions.BTPPermissionDeniedException;
     public void createBankAccount(CreateNewBankAccountEvent event);
     public void createCustomer(CreateCustomerEvent event); 
     public void setDailyOverdrawnCharge(SetDailyOverdrawnChargeEvent event);

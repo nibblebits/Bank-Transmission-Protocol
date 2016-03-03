@@ -6,6 +6,7 @@
 package BTP;
 
 import BTP.exceptions.BTPBankNotFoundException;
+import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,15 +27,12 @@ public class BTPSystem {
         this.trusted_bank = new ArrayList<BTPBank>();
     }
     
-    public BTPCustomerClient newCustomerClientFromLogin(int customer_id, String password) throws IOException, BTPPermissionDeniedException {
+    public BTPCustomerClient newCustomerClientFromLogin(int customer_id, String password) throws IOException, BTPPermissionDeniedException, BTPDataException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
         BTPCustomerClient client = new BTPCustomerClient(socket);
-        if (client.login(customer_id, password)) {
-            return client;
-        }
-        
-        throw new BTPPermissionDeniedException("Failed to login as a customer permission denied.");
+        client.login(customer_id, password);
+        return client;
     }
     
     public BTPEmployeeClient newEmployeeClientFromLogin(int employee_id, String password) throws IOException, BTPPermissionDeniedException {
