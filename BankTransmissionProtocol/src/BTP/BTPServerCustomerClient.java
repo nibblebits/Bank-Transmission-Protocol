@@ -39,12 +39,12 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 If we reached this point with no exception thrown then its safe to assume that the customer 
                 has logged in succesfully.
             */
-            // Send a 0 to state that the authentication was succesful
-            this.getPrintStream().write(0);
+            // Send a ALL_OK status to state that the authentication was succesful
+            this.getPrintStream().write(BTPResponseCode.ALL_OK);
             this.setAuthenticated(true);
         } catch(BTP.exceptions.BTPPermissionDeniedException ex) {
-            // Send a 1 since their was a permissio
-            this.getPrintStream().write(1);
+            // Send a permission denied status since the login was denied
+            this.getPrintStream().write(BTPResponseCode.PERMISSION_DENIED_EXCEPTION);
             // Send the failure message
             this.getPrintStream().println(ex.getMessage());
             throw ex;

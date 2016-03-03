@@ -34,23 +34,23 @@ public class BTPServer {
         new Thread(new BTPServerClientAcceptor(this, this.server_socket)).start();
     }
     
-    public BTPSystem getSystem() {
+    public synchronized BTPSystem getSystem() {
         return this.system;
     }
     
-    public BTPServerEventHandler getEventHandler() {
+    public synchronized BTPServerEventHandler getEventHandler() {
         return this.eventHandler;
     }
     
-    public void addClient(BTPServerClient client) {
+    public synchronized void addClient(BTPServerClient client) {
         this.client.add(client);
     }
     
-    public ArrayList<BTPClient> getClients() {
+    public synchronized ArrayList<BTPClient> getClients() {
         return this.client;
     }
     
-    public void shutdown() {
+    public synchronized void shutdown() {
         
     }
 }

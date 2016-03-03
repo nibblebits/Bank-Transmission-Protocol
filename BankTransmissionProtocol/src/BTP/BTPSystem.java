@@ -11,7 +11,6 @@ import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 
 /**
@@ -27,7 +26,7 @@ public class BTPSystem {
         this.trusted_bank = new ArrayList<BTPBank>();
     }
     
-    public BTPCustomerClient newCustomerClientFromLogin(int customer_id, String password) throws IOException, BTPPermissionDeniedException, BTPDataException {
+    public synchronized BTPCustomerClient newCustomerClientFromLogin(int customer_id, String password) throws IOException, BTPPermissionDeniedException, BTPDataException, Exception {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
         BTPCustomerClient client = new BTPCustomerClient(socket);
@@ -35,7 +34,7 @@ public class BTPSystem {
         return client;
     }
     
-    public BTPEmployeeClient newEmployeeClientFromLogin(int employee_id, String password) throws IOException, BTPPermissionDeniedException {
+    public synchronized BTPEmployeeClient newEmployeeClientFromLogin(int employee_id, String password) throws IOException, BTPPermissionDeniedException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
         BTPEmployeeClient client = new BTPEmployeeClient(socket);
@@ -46,7 +45,7 @@ public class BTPSystem {
          throw new BTPPermissionDeniedException("Failed to login as an employee permission denied.");
     }
     
-    public BTPAdministratorClient newAdministrtorClientFromLogin(int admin_id, String password) throws IOException, BTPPermissionDeniedException {
+    public synchronized BTPAdministratorClient newAdministrtorClientFromLogin(int admin_id, String password) throws IOException, BTPPermissionDeniedException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
         BTPAdministratorClient client = new BTPAdministratorClient(socket);
@@ -57,7 +56,7 @@ public class BTPSystem {
          throw new BTPPermissionDeniedException("Failed to login as an administrator permission denied.");
     }
     
-    public BTPTransferClient newTransferClient(String bank_sortcode) throws BTPBankNotFoundException, IOException, BTPPermissionDeniedException {
+    public synchronized BTPTransferClient newTransferClient(String bank_sortcode) throws BTPBankNotFoundException, IOException, BTPPermissionDeniedException {
         BTPBank receiver_bank = this.getTrustedBank(bank_sortcode);
         if (bank == null) {
             throw new BTPBankNotFoundException("Transfer is not possible as their is no bank could be found with the sortcode " + bank_sortcode);
@@ -75,19 +74,19 @@ public class BTPSystem {
         throw new BTPPermissionDeniedException("Failed to login as a transfer client permission denied.");
     }
     
-    public BTPServer newServer(BTPServerEventHandler eventHandler) {
+    public synchronized BTPServer newServer(BTPServerEventHandler eventHandler) {
         return new BTPServer(this, eventHandler);
     }
     
-    public BTPBank getOurBank() {
+    public synchronized BTPBank getOurBank() {
         return this.bank;
     }
     
-    public ArrayList<BTPBank> getTrustedBanks() {
+    public synchronized ArrayList<BTPBank> getTrustedBanks() {
         return this.trusted_bank;
     }
     
-    public BTPBank getTrustedBank(String sortcode) {
+    public synchronized BTPBank getTrustedBank(String sortcode) {
         for (BTPBank bank : this.trusted_bank) {
             if (bank.getSortcode().equals(sortcode)) {
                 return bank;
@@ -96,7 +95,7 @@ public class BTPSystem {
         return null;
     }
     
-    public void addTrustedBank(BTPBank bank) {
+    public synchronized void addTrustedBank(BTPBank bank) {
         this.trusted_bank.add(bank);
     }
 }

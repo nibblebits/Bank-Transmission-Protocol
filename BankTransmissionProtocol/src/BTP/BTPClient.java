@@ -22,34 +22,34 @@ public abstract class BTPClient {
     public static int Transfer = 2;
     public static int Administrator = 3;
     
-    private Socket socket;
+    private volatile Socket socket;
     private boolean authenticated;
-    private PrintStream output;
-    private BufferedReader input;
+    private volatile PrintStream output;
+    private volatile BufferedReader input;
     public BTPClient(Socket socket) throws IOException {
         this.socket = socket;
-        this.output = new PrintStream(socket.getOutputStream());
+        this.output = new PrintStream(socket.getOutputStream(), true);
         this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.authenticated = false;
     }
     
-    protected PrintStream getPrintStream() {
+    protected synchronized PrintStream getPrintStream() {
         return this.output;
     }
     
-    protected BufferedReader getBufferedReader() {
+    protected synchronized BufferedReader getBufferedReader() {
         return this.input;
     }
     
-    public boolean isAuthenticated() {
+    public synchronized boolean isAuthenticated() {
         return this.authenticated;
     }
     
-    protected void setAuthenticated(boolean authenticated) {
+    protected synchronized void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
     }
     
-    protected Socket getSocket() {
+    protected synchronized Socket getSocket() {
         return this.socket;
     }
 }
