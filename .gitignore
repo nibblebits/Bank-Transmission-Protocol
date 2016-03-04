@@ -1,1 +1,7 @@
 /BankTransmissionProtocol/nbproject/private/
+/BankServer/nbproject/private/
+/BankClient/nbproject/private/
+/BankServer/build/
+/BankClient/build/
+/BankClient/dist/
+/BankServer/dist/
