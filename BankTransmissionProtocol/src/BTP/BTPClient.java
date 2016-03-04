@@ -59,4 +59,9 @@ public abstract class BTPClient {
         return this.system;
     }
     
+    public void shutdown() throws IOException {
+        if (this.socket != null)  {
+            this.socket.close();
+        }
+    }
 }
