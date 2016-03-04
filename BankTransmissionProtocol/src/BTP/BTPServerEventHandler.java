@@ -17,8 +17,8 @@ public interface BTPServerEventHandler {
     public BTPAccountType[] getBankAccountTypes(GetBankAccountTypesEvent event);
     public BTPAccount[] getBankAccountsOfCustomer(GetBankAccountsOfCustomerEvent event);
     public void setBankAccountsOverdraftLimit(SetBankAccountOverdraftLimitEvent event);
-    public void transfer(RemoteTransferEvent event);
-    public void transfer(LocalTransferEvent event);
+    public void transfer(RemoteTransferEvent event) throws BTP.exceptions.BTPAccountNotFoundException, BTP.exceptions.BTPBankNotFoundException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPInvalidAccountTypeException, BTP.exceptions.BTPPermissionDeniedException;
+    public void transfer(LocalTransferEvent event) throws BTP.exceptions.BTPAccountNotFoundException, BTP.exceptions.BTPBankNotFoundException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPInvalidAccountTypeException, BTP.exceptions.BTPPermissionDeniedException;
     public BTPCustomer getCustomer(GetCustomerEvent event);
     public double getBalance(BalanceEnquiryEvent event);
     public void setSavingsAccountInterestRate(SetSavingsAccountInterestRateEvent event);

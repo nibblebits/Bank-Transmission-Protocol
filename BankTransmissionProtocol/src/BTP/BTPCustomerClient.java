@@ -15,20 +15,20 @@ import java.util.logging.Logger;
  *
  * @author Daniel
  */
-public class BTPCustomerClient extends BTPClient{
+public class BTPCustomerClient extends BTPClient {
 
-    public BTPCustomerClient(Socket socket) throws IOException {
-        super(socket);
-       
+    public BTPCustomerClient(BTPSystem system, Socket socket) throws IOException {
+        super(system, socket);
+
     }
-    
+
     public boolean login(int customer_id, String password) throws BTPPermissionDeniedException, BTPDataException, Exception {
         // Send the customer client authentication type.
         this.getPrintStream().write(BTPClient.Customer);
         this.getPrintStream().println(Integer.toString(customer_id));
         this.getPrintStream().println(password);
         this.getPrintStream().flush();
-        
+
         try {
             int response = this.getBufferedReader().read();
             if (response == BTPResponseCode.ALL_OK) {
@@ -36,40 +36,68 @@ public class BTPCustomerClient extends BTPClient{
                 this.setAuthenticated(true);
                 return true;
             } else {
-               String message = this.getBufferedReader().readLine();
-               if (response == BTPResponseCode.PERMISSION_DENIED_EXCEPTION) {
-                   throw new BTP.exceptions.BTPPermissionDeniedException(message);
-               } else if(response == BTPResponseCode.DATA_EXCEPTION) {
-                   throw new BTP.exceptions.BTPDataException(message);
-               } else {
-                   throw new Exception(message);
-               }
+                String message = this.getBufferedReader().readLine();
+                if (response == BTPResponseCode.PERMISSION_DENIED_EXCEPTION) {
+                    throw new BTP.exceptions.BTPPermissionDeniedException(message);
+                } else if (response == BTPResponseCode.DATA_EXCEPTION) {
+                    throw new BTP.exceptions.BTPDataException(message);
+                } else {
+                    throw new Exception(message);
+                }
             }
         } catch (IOException ex) {
             Logger.getLogger(BTPCustomerClient.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
     }
-    
-    public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) throws BTPPermissionDeniedException {
+
+    public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) throws BTPPermissionDeniedException, IOException, BTPDataException {
         if (this.isAuthenticated()) {
-            
+            this.getPrintStream().write(BTPOperation.TRANSFER);
+            this.getPrintStream().println(Integer.toString(account_from.getAccountNumber()));
+            this.getPrintStream().println(account_from.getSortCode());
+            this.getPrintStream().println(Integer.toString(account_to.getAccountNumber()));
+            this.getPrintStream().println(account_to.getSortCode());
+            this.getPrintStream().println(Double.toString(amount));
+            int response = this.getBufferedReader().read();
+            if (response != BTPResponseCode.ALL_OK) {
+                String message = this.getBufferedReader().readLine();
+                
+            }
         } else {
-            throw new BTP.exceptions.BTPPermissionDeniedException("You must be logged in to perform a transfer");
+            throw new BTP.exceptions.BTPPermissionDeniedException("You must be logged in to perform a transfer.");
         }
     }
-    
+
     public double getBalance(BTPAccount account) {
         return 0;
     }
-    
-    
-   public BTPTransaction[] getTransactions()
-   {
-       return null;
-   }
-    
-   public BTPAccount[] getBankAccounts() {
-       return null;
-   }
+
+    public BTPTransaction[] getTransactions() {
+        return null;
+    }
+
+    public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException {
+        BTPAccount[] accounts = null;
+        if (this.isAuthenticated()) {
+            this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNTS);
+            int amount = this.getBufferedReader().read();
+            accounts = new BTPAccount[amount];
+            for (int i = 0; i < amount; i++) {
+                int account_no = Integer.parseInt(this.getBufferedReader().readLine());
+                int total_options = this.getBufferedReader().read();
+                BTPKeyContainer extra = new BTPKeyContainer();
+                for (int b = 0; b < total_options; b++) {
+                    BTPKey key = new BTPKey(
+                            this.getBufferedReader().readLine(),
+                            this.getBufferedReader().readLine()
+                    );
+                    extra.addKey(key);
+                }
+            }
+            return accounts;
+        } else {
+              throw new BTP.exceptions.BTPPermissionDeniedException("You must be logged in to retrieve bank accounts.");
+        }
+    }
 }
