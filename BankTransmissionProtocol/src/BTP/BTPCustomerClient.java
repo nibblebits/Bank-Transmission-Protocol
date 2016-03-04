@@ -37,13 +37,7 @@ public class BTPCustomerClient extends BTPClient {
                 return true;
             } else {
                 String message = this.getBufferedReader().readLine();
-                if (response == BTPResponseCode.PERMISSION_DENIED_EXCEPTION) {
-                    throw new BTP.exceptions.BTPPermissionDeniedException(message);
-                } else if (response == BTPResponseCode.DATA_EXCEPTION) {
-                    throw new BTP.exceptions.BTPDataException(message);
-                } else {
-                    throw new Exception(message);
-                }
+                this.getSystem().throwExceptionById(response, message);
             }
         } catch (IOException ex) {
             Logger.getLogger(BTPCustomerClient.class.getName()).log(Level.SEVERE, null, ex);
@@ -62,7 +56,7 @@ public class BTPCustomerClient extends BTPClient {
             int response = this.getBufferedReader().read();
             if (response != BTPResponseCode.ALL_OK) {
                 String message = this.getBufferedReader().readLine();
-                
+                this.getSystem().throwExceptionById(response, message);
             }
         } else {
             throw new BTP.exceptions.BTPPermissionDeniedException("You must be logged in to perform a transfer.");
@@ -77,10 +71,15 @@ public class BTPCustomerClient extends BTPClient {
         return null;
     }
 
-    public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException {
+    public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException, BTPDataException {
         BTPAccount[] accounts = null;
         if (this.isAuthenticated()) {
             this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNTS);
+            int response = this.getBufferedReader().read();
+            if (response != BTPResponseCode.ALL_OK) {
+                String message = this.getBufferedReader().readLine();
+                this.getSystem().throwExceptionById(response, message);
+            }
             int amount = this.getBufferedReader().read();
             accounts = new BTPAccount[amount];
             for (int i = 0; i < amount; i++) {
