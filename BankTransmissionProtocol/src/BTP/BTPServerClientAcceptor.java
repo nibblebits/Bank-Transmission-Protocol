@@ -52,8 +52,15 @@ public class BTPServerClientAcceptor implements Runnable {
 
                             if (client != null) {
                                 server.addClient(client);
-                                // Start the new client thread
-                                new Thread(client).start();
+                                // we are already in a thread so no need to create another one. Just invoke its run method
+                                client.run();
+                                
+                                // Now shutdown the client
+                                try {
+                                    client.shutdown();
+                                } catch (IOException ex1) {
+                                    Logger.getLogger(BTPServerClient.class.getName()).log(Level.SEVERE, null, ex1);
+                                }
                             } else {
                                 socket.close();
                             }
