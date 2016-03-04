@@ -54,4 +54,9 @@ public abstract class BTPClient {
     protected synchronized Socket getSocket() {
         return this.socket;
     }
+    
+    public BTPSystem getSystem() {
+        return this.system;
+    }
+    
 }
