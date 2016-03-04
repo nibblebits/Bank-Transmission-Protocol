@@ -14,8 +14,8 @@ import java.net.Socket;
  */
 public class BTPEmployeeClient extends BTPClient{
 
-    public BTPEmployeeClient(Socket socket) throws IOException {
-        super(socket);
+    public BTPEmployeeClient(BTPSystem system, Socket socket) throws IOException {
+        super(system, socket);
     }
     
     public boolean login(int employee_id, String password) {

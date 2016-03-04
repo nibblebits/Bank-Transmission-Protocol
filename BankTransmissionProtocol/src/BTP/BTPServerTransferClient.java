@@ -14,8 +14,8 @@ import java.net.Socket;
  */
 public class BTPServerTransferClient extends BTPServerClient {
 
-    public BTPServerTransferClient(BTPServer server, Socket client) throws IOException {
-        super(server, client);
+    public BTPServerTransferClient(BTPSystem system, BTPServer server, Socket client) throws IOException {
+        super(system, server, client);
     }
 
     @Override

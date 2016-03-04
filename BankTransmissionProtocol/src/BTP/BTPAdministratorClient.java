@@ -14,8 +14,8 @@ import java.net.Socket;
  */
 public class BTPAdministratorClient extends BTPEmployeeClient {
 
-    public BTPAdministratorClient(Socket socket) throws IOException {
-        super(socket);
+    public BTPAdministratorClient(BTPSystem system, Socket socket) throws IOException {
+        super(system, socket);
     }
     
     @Override

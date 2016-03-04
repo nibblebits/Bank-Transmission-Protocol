@@ -1,6 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this license header, choose License Headers inroject Properties.
+ * To change this template file, choose Tools | Templates P
  * and open the template in the editor.
  */
 package BTP;
@@ -30,7 +30,7 @@ public class BTPSystem {
     public synchronized BTPCustomerClient newCustomerClientFromLogin(int customer_id, String password) throws IOException, BTPPermissionDeniedException, BTPDataException, Exception {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
-        BTPCustomerClient client = new BTPCustomerClient(socket);
+        BTPCustomerClient client = new BTPCustomerClient(this, socket);
         client.login(customer_id, password);
         return client;
     }
@@ -38,7 +38,7 @@ public class BTPSystem {
     public synchronized BTPEmployeeClient newEmployeeClientFromLogin(int employee_id, String password) throws IOException, BTPPermissionDeniedException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
-        BTPEmployeeClient client = new BTPEmployeeClient(socket);
+        BTPEmployeeClient client = new BTPEmployeeClient(this, socket);
         if (client.login(employee_id, password)) {
             return client;
         }
@@ -49,7 +49,7 @@ public class BTPSystem {
     public synchronized BTPAdministratorClient newAdministrtorClientFromLogin(int admin_id, String password) throws IOException, BTPPermissionDeniedException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
-        BTPAdministratorClient client = new BTPAdministratorClient(socket);
+        BTPAdministratorClient client = new BTPAdministratorClient(this, socket);
         if (client.login(admin_id, password)) {
             return client;
         }
@@ -66,7 +66,7 @@ public class BTPSystem {
         // We must connect to the receiver bank to request a transfer
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(receiver_bank.getAddress(), receiver_bank.getPort()), 5000);
-        BTPTransferClient client = new BTPTransferClient(socket);
+        BTPTransferClient client = new BTPTransferClient(this, socket);
         // We must login to the server with our banks sortcode. Both banks share the same auth code with eachother.
         if (client.login(this.getOurBank().getSortcode(), receiver_bank.getAuthCode())) {
             return client;

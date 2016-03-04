@@ -41,13 +41,13 @@ public class BTPServerClientAcceptor implements Runnable {
                             int auth_type = socket.getInputStream().read();
 
                             if (auth_type == BTPClient.Customer) { // Customer Login
-                                client = new BTPServerCustomerClient(server, socket);
+                                client = new BTPServerCustomerClient(server.getSystem(), server, socket);
                             } else if (auth_type == BTPClient.Employee) { // Employee login
-                                client = new BTPServerEmployeeClient(server, socket);
+                                client = new BTPServerEmployeeClient(server.getSystem(), server, socket);
                             } else if (auth_type == BTPClient.Transfer) { // Transfer Login
-                                client = new BTPServerTransferClient(server, socket);
+                                client = new BTPServerTransferClient(server.getSystem(), server, socket);
                             } else if (auth_type == BTPClient.Administrator) { // Administrator Login
-                                client = new BTPServerAdministratorClient(server, socket);
+                                client = new BTPServerAdministratorClient(server.getSystem(), server, socket);
                             }
 
                             if (client != null) {

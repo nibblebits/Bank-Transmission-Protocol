@@ -18,8 +18,8 @@ public abstract class BTPServerClient extends BTPClient implements Runnable {
     
     private final BTPServer server;
     
-    public BTPServerClient(BTPServer server, Socket client) throws IOException {
-        super(client);
+    public BTPServerClient(BTPSystem system, BTPServer server, Socket client) throws IOException {
+        super(system, client);
         this.server = server;
     }
     

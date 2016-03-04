@@ -14,8 +14,8 @@ import java.net.Socket;
  */
 public class BTPTransferClient extends BTPClient {
 
-    public BTPTransferClient(Socket socket) throws IOException {
-        super(socket);
+    public BTPTransferClient(BTPSystem system, Socket socket) throws IOException {
+        super(system, socket);
     }
     
     public boolean login(String bank_sortcode, String auth_code) {

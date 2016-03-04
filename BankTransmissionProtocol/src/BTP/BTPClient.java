@@ -22,11 +22,13 @@ public abstract class BTPClient {
     public static int Transfer = 2;
     public static int Administrator = 3;
     
-    private volatile Socket socket;
+    private Socket socket;
+    private BTPSystem system;
     private boolean authenticated;
-    private volatile PrintStream output;
-    private volatile BufferedReader input;
-    public BTPClient(Socket socket) throws IOException {
+    private PrintStream output;
+    private BufferedReader input;
+    public BTPClient(BTPSystem system, Socket socket) throws IOException {
+        this.system = system;
         this.socket = socket;
         this.output = new PrintStream(socket.getOutputStream(), true);
         this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
