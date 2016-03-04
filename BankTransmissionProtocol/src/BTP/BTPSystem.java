@@ -18,14 +18,15 @@ import java.util.ArrayList;
  * @author Daniel
  */
 public class BTPSystem {
+
     private BTPBank bank;
     private ArrayList<BTPBank> trusted_bank;
-    
+
     public BTPSystem(BTPBank bank) {
         this.bank = bank;
         this.trusted_bank = new ArrayList<BTPBank>();
     }
-    
+
     public synchronized BTPCustomerClient newCustomerClientFromLogin(int customer_id, String password) throws IOException, BTPPermissionDeniedException, BTPDataException, Exception {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
@@ -33,18 +34,18 @@ public class BTPSystem {
         client.login(customer_id, password);
         return client;
     }
-    
+
     public synchronized BTPEmployeeClient newEmployeeClientFromLogin(int employee_id, String password) throws IOException, BTPPermissionDeniedException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
         BTPEmployeeClient client = new BTPEmployeeClient(socket);
-        if(client.login(employee_id, password)) {
+        if (client.login(employee_id, password)) {
             return client;
         }
-        
-         throw new BTPPermissionDeniedException("Failed to login as an employee permission denied.");
+
+        throw new BTPPermissionDeniedException("Failed to login as an employee permission denied.");
     }
-    
+
     public synchronized BTPAdministratorClient newAdministrtorClientFromLogin(int admin_id, String password) throws IOException, BTPPermissionDeniedException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
@@ -52,40 +53,40 @@ public class BTPSystem {
         if (client.login(admin_id, password)) {
             return client;
         }
-        
-         throw new BTPPermissionDeniedException("Failed to login as an administrator permission denied.");
+
+        throw new BTPPermissionDeniedException("Failed to login as an administrator permission denied.");
     }
-    
+
     public synchronized BTPTransferClient newTransferClient(String bank_sortcode) throws BTPBankNotFoundException, IOException, BTPPermissionDeniedException {
         BTPBank receiver_bank = this.getTrustedBank(bank_sortcode);
         if (bank == null) {
             throw new BTPBankNotFoundException("Transfer is not possible as their is no bank could be found with the sortcode " + bank_sortcode);
         }
-        
+
         // We must connect to the receiver bank to request a transfer
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(receiver_bank.getAddress(), receiver_bank.getPort()), 5000);
         BTPTransferClient client = new BTPTransferClient(socket);
         // We must login to the server with our banks sortcode. Both banks share the same auth code with eachother.
-        if(client.login(this.getOurBank().getSortcode(), receiver_bank.getAuthCode())) {
+        if (client.login(this.getOurBank().getSortcode(), receiver_bank.getAuthCode())) {
             return client;
         }
-        
+
         throw new BTPPermissionDeniedException("Failed to login as a transfer client permission denied.");
     }
-    
+
     public synchronized BTPServer newServer(BTPServerEventHandler eventHandler) {
         return new BTPServer(this, eventHandler);
     }
-    
+
     public synchronized BTPBank getOurBank() {
         return this.bank;
     }
-    
+
     public synchronized ArrayList<BTPBank> getTrustedBanks() {
         return this.trusted_bank;
     }
-    
+
     public synchronized BTPBank getTrustedBank(String sortcode) {
         for (BTPBank bank : this.trusted_bank) {
             if (bank.getSortcode().equals(sortcode)) {
@@ -94,8 +95,16 @@ public class BTPSystem {
         }
         return null;
     }
-    
+
     public synchronized void addTrustedBank(BTPBank bank) {
         this.trusted_bank.add(bank);
+    }
+
+    public synchronized void throwExceptionById(int exception_id, String message) throws BTPPermissionDeniedException, BTPDataException {
+        if (exception_id == BTPResponseCode.PERMISSION_DENIED_EXCEPTION) {
+            throw new BTP.exceptions.BTPPermissionDeniedException(message);
+        } else if (exception_id == BTPResponseCode.DATA_EXCEPTION) {
+            throw new BTP.exceptions.BTPDataException(message);
+        }
     }
 }
