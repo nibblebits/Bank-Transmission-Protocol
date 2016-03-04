@@ -17,6 +17,7 @@ import java.util.logging.Logger;
  */
 public class BTPCustomerClient extends BTPClient {
 
+    private int customer_id = -1;
     public BTPCustomerClient(BTPSystem system, Socket socket) throws IOException {
         super(system, socket);
 
@@ -34,6 +35,7 @@ public class BTPCustomerClient extends BTPClient {
             if (response == BTPResponseCode.ALL_OK) {
                 // Set this client as authenticated
                 this.setAuthenticated(true);
+                this.customer_id = customer_id;
                 return true;
             } else {
                 String message = this.getBufferedReader().readLine();
@@ -93,6 +95,9 @@ public class BTPCustomerClient extends BTPClient {
                     );
                     extra.addKey(key);
                 }
+                
+                // This will be changed shortly their is a cleaner way of doing this.
+                accounts[i] = new BTPAccount(this.customer_id, account_no, this.getSystem().getOurBank().getSortcode(), extra);      
             }
             return accounts;
         } else {
