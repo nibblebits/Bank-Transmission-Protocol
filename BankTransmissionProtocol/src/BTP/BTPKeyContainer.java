@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class BTPKeyContainer {
     public ArrayList<BTPKey> keys;
     public BTPKeyContainer() {
-        
+        this.keys = new ArrayList<BTPKey>();
     }
     
     public void addKey(BTPKey key) {
