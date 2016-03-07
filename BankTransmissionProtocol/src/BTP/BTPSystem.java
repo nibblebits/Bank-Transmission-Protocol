@@ -100,11 +100,13 @@ public class BTPSystem {
         this.trusted_bank.add(bank);
     }
 
-    public synchronized void throwExceptionById(int exception_id, String message) throws BTPPermissionDeniedException, BTPDataException {
+    public synchronized void throwExceptionById(int exception_id, String message) throws BTPPermissionDeniedException, BTPDataException, Exception {
         if (exception_id == BTPResponseCode.PERMISSION_DENIED_EXCEPTION) {
             throw new BTP.exceptions.BTPPermissionDeniedException(message);
         } else if (exception_id == BTPResponseCode.DATA_EXCEPTION) {
             throw new BTP.exceptions.BTPDataException(message);
+        } else {
+            throw new Exception(message);
         }
     }
 }
