@@ -47,7 +47,7 @@ public class BTPCustomerClient extends BTPClient {
         return false;
     }
 
-    public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) throws BTPPermissionDeniedException, IOException, BTPDataException {
+    public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) throws BTPPermissionDeniedException, IOException, BTPDataException, Exception {
         if (this.isAuthenticated()) {
             this.getPrintStream().write(BTPOperation.TRANSFER);
             this.getPrintStream().println(Integer.toString(account_from.getAccountNumber()));
@@ -73,7 +73,7 @@ public class BTPCustomerClient extends BTPClient {
         return null;
     }
 
-    public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException, BTPDataException {
+    public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException, BTPDataException, Exception {
         BTPAccount[] accounts = null;
         if (this.isAuthenticated()) {
             this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNTS);
