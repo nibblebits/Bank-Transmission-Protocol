@@ -9,101 +9,136 @@ import BTP.*;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 /**
  *
  * @author Daniel
  */
 public class BankServer implements BTPServerEventHandler {
 
-    public static void main(String[] args) {
-        // TODO code application logic here
-        BTPSystem system = new BTPSystem(new BTPBank("22-33-44", "dmwkei38823r238r23amn3b4583j", "127.0.0.1", 4444));
-        BTPServer server = system.newServer(new BankServer());
+    private Database database = null;
+    private BTPBank this_bank = null;
+
+    public void init() {
+        database = new Database();
+        database.setup();
+        this_bank = new BTPBank("22-33-44", "dmwkei38823r238r23amn3b4583j", "127.0.0.1", 4444);
+
+        BTPSystem system = new BTPSystem(this_bank);
+        BTPServer server = system.newServer(this);
         try {
             server.listen();
             System.out.println("Started listening on port " + system.getOurBank().getPort());
         } catch (IOException ex) {
             Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public void run() {
         
+    }
+
+    public static void main(String[] args) {
+        BankServer server = new BankServer();
+        server.init();
+        server.run();
+
         // Never quit
-        while(true) { }
+        while (true) {
+        }
     }
 
     @Override
-    public void customerLogin(CustomerLoginEvent event) throws BTPPermissionDeniedException, BTPDataException {
-        if(event.getCustomerId() == 123456789 && event.getPassword().equals("1234")) {
-            return;
+    public synchronized void customerLogin(CustomerLoginEvent event) throws BTPPermissionDeniedException, BTPDataException {
+        DBCustomer db_customer;
+        
+        try {
+            db_customer = database.getCustomer(event.getCustomerId());
+            if (db_customer != null && db_customer.getPassword().equals(event.getPassword())) {
+                // Login was success so return
+                return;
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
         }
         throw new BTP.exceptions.BTPPermissionDeniedException("Failed to login due to bad login details");
     }
 
     @Override
-    public void createBankAccount(CreateNewBankAccountEvent event) {
+    public synchronized void createBankAccount(CreateNewBankAccountEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void createCustomer(CreateCustomerEvent event) {
+    public synchronized void createCustomer(CreateCustomerEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setDailyOverdrawnCharge(SetDailyOverdrawnChargeEvent event) {
+    public synchronized void setDailyOverdrawnCharge(SetDailyOverdrawnChargeEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public BTPAccountType[] getBankAccountTypes(GetBankAccountTypesEvent event) {
+    public synchronized BTPAccountType[] getBankAccountTypes(GetBankAccountTypesEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public BTPAccount[] getBankAccountsOfCustomer(GetBankAccountsOfCustomerEvent event) {
+    public synchronized BTPAccount[] getBankAccountsOfCustomer(GetBankAccountsOfCustomerEvent event) {
+        BTPAccount[] accounts = new BTPAccount[2];
+        BTPKeyContainer extra = new BTPKeyContainer();
+        extra.addKey(new BTPKey("account_type", "Student"));
+        extra.addKey(new BTPKey("graduation", "2017"));
+        accounts[0] = new BTPAccount(1, 123456789, "22-33-44", null);
+        accounts[1] = new BTPAccount(1, 222228362, "22-33-44", extra);
+        return accounts;
+    }
+
+    @Override
+    public synchronized void setBankAccountsOverdraftLimit(SetBankAccountOverdraftLimitEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setBankAccountsOverdraftLimit(SetBankAccountOverdraftLimitEvent event) {
+    public synchronized void transfer(RemoteTransferEvent event) throws BTPPermissionDeniedException {
+        throw new BTP.exceptions.BTPPermissionDeniedException("Transfers are not allowed.");
+    }
+
+    @Override
+    public synchronized void transfer(LocalTransferEvent event) throws BTPPermissionDeniedException {
+        if (event.getAccountToTransferFrom().getCustomerId() == 123456789) {
+            // All good!
+            if (event.getAccountToTransferFrom().getAccountNumber() == 58473732) {
+                return;
+            }
+        }
+        throw new BTP.exceptions.BTPPermissionDeniedException("Transfer failed, permission denied");
+    }
+
+    @Override
+    public synchronized BTPCustomer getCustomer(GetCustomerEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void transfer(RemoteTransferEvent event) throws BTPPermissionDeniedException {
-       throw new BTP.exceptions.BTPPermissionDeniedException("Transfers are not allowed.");
-    }
-
-    @Override
-    public void transfer(LocalTransferEvent event) throws BTPPermissionDeniedException {
-       if (event.getAccountToTransferFrom().getCustomerId() == 123456789) {
-           // All good!
-           if (event.getAccountToTransferFrom().getAccountNumber() == 58473732) {
-               return;
-           }
-       }
-       throw new BTP.exceptions.BTPPermissionDeniedException("Transfer failed, permission denied");
-    }
-
-    @Override
-    public BTPCustomer getCustomer(GetCustomerEvent event) {
+    public synchronized double getBalance(BalanceEnquiryEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public double getBalance(BalanceEnquiryEvent event) {
+    public synchronized void setSavingsAccountInterestRate(SetSavingsAccountInterestRateEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setSavingsAccountInterestRate(SetSavingsAccountInterestRateEvent event) {
+    public synchronized BTPTransaction[] getTransactionsOfAccount(GetTransactionsOfBankAccountEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public BTPTransaction[] getTransactionsOfAccount(GetTransactionsOfBankAccountEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
 }
