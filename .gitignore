@@ -1,5 +1,6 @@
 /BankTransmissionProtocol/nbproject/private/
-/BankTransmissionProtocol/build
+/BankTransmissionProtocol/build/
+/BankServer/nbproject/
 /BankServer/nbproject/private/
 /BankClient/nbproject/private/
 /BankServer/build/
@@ -9,3 +10,4 @@
 
 *.class
 *.properties
+*.~vsd
