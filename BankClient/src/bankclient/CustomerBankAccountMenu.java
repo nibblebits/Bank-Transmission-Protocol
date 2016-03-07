@@ -7,7 +7,11 @@ package bankclient;
 
 import BTP.BTPAccount;
 import BTP.BTPCustomerClient;
+import BTP.exceptions.BTPDataException;
+import BTP.exceptions.BTPPermissionDeniedException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -34,7 +38,15 @@ public class CustomerBankAccountMenu extends Page {
     }
     
     public void showBalance() {
-        System.out.println("Balance: " + this.btp_client.getBalance(this.bank_account));
+        try {
+            System.out.println("Balance: " + this.btp_client.getBalance(this.bank_account));
+        } catch (BTPPermissionDeniedException ex) {
+            System.err.println("Permission denied: " + ex.getMessage());
+        } catch (BTPDataException ex) {
+            Logger.getLogger(CustomerBankAccountMenu.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(CustomerBankAccountMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public boolean selectOption() {
