@@ -30,7 +30,7 @@ public class CustomerBankAccountMenu extends Page {
         System.out.println("=========================");
         System.out.println("Select an option: ");
         System.out.println("1. View balance");
-        System.out.println("2. Quit");
+        System.out.println("2. Back to main menu");
     }
     
     public void showBalance() {
@@ -45,7 +45,7 @@ public class CustomerBankAccountMenu extends Page {
             }
             break;
                 
-            case 2: { // Quit
+            case 2: { // Back to the main menu
                 return false;
             }
         }
@@ -60,6 +60,7 @@ public class CustomerBankAccountMenu extends Page {
                 break;
             }
         } while(true);
+        
     }
     
 }
