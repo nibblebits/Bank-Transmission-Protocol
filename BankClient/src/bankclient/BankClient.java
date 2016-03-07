@@ -63,8 +63,6 @@ public class BankClient {
     public void run() {
         // Show the login page
        getPageNavigator().showPage(new BankLogin(this));
-       // Show the main menu
-       getPageNavigator().showPage(new MainMenu(this));
   
      
     }

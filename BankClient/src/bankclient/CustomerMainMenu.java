@@ -14,12 +14,12 @@ import java.util.logging.Logger;
  *
  * @author Daniel
  */
-public class MainMenu extends Page {
+public class CustomerMainMenu extends Page {
 
     private Scanner scanner;
     private int selected_option;
 
-    public MainMenu(BankClient client) {
+    public CustomerMainMenu(BankClient client) {
         super(client);
         this.scanner = client.getScanner();
         this.selected_option = 0;
@@ -39,7 +39,7 @@ public class MainMenu extends Page {
                 this.getBankClient().getPageNavigator().showPage(new SelectBankAccountPage(this.getBankClient()));
             }
             break;
-                
+            
             case 2: { // Quit 
                 System.out.println("Thank you.");
                 return false;

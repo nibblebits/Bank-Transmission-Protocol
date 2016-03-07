@@ -70,11 +70,11 @@ public class SelectBankAccountPage extends Page {
             }
 
         } catch (IOException ex) {
-            Logger.getLogger(BankClientOld.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BankClient.class.getName()).log(Level.SEVERE, null, ex);
         } catch (BTPDataException ex) {
-            Logger.getLogger(BankClientOld.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BankClient.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            Logger.getLogger(BankClientOld.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BankClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

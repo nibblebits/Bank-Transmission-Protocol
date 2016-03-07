@@ -20,13 +20,14 @@ public class BankLogin extends Page {
 
     private Scanner scanner;
     private BTPClient client;
+
     public BankLogin(BankClient client) {
         super(client);
         this.scanner = this.getBankClient().getScanner();
         this.client = null;
     }
 
-     public boolean login() {
+    public void login() {
         int customer_id;
         String password;
         System.out.println("Login >>");
@@ -39,24 +40,23 @@ public class BankLogin extends Page {
             client = this.getBankClient().getSystem().newCustomerClientFromLogin(customer_id, password);
             this.getBankClient().setBTPClient(client);
             System.out.println("Login Succesful.");
-            return true;
+            // Show the customer main menu
+            this.getBankClient().getPageNavigator().showPage(new CustomerMainMenu(this.getBankClient()));
         } catch (BTPPermissionDeniedException ex) {
             System.err.println("Permission Denied: " + ex.getMessage());
 
         } catch (BTPDataException ex) {
-            Logger.getLogger(BankClientOld.class
+            Logger.getLogger(BankClient.class
                     .getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            Logger.getLogger(BankClientOld.class
+            Logger.getLogger(BankClient.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
-        return false;
     }
 
     @Override
     public void run() {
         login();
     }
-    
-    
+
 }
