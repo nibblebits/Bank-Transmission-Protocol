@@ -63,6 +63,10 @@ public class BTPServerCustomerClient extends BTPServerClient {
             // Send the failure message
             this.getPrintStream().println(ex.getMessage());
             throw ex;
+        } catch (Exception ex) {
+            // We don't know what this exception is so send it as a standard exception
+            this.getPrintStream().write(5959);
+            this.getPrintStream().println(ex.getMessage());
         }
 
         // Flush the print stream
@@ -128,6 +132,41 @@ public class BTPServerCustomerClient extends BTPServerClient {
                         this.getPrintStream().write(BTPResponseCode.PERMISSION_DENIED_EXCEPTION);
                         this.getPrintStream().println(ex.getMessage());
                     }
+                }
+            }
+            break;
+
+            case BTPOperation.GET_BANK_ACCOUNTS: {
+                try {
+                    BTPAccount[] bank_accounts = this.getServer().getEventHandler().getBankAccountsOfCustomer(new GetBankAccountsOfCustomerEvent(this.customer.getId()));
+                    // A default check just in case the event handler does not throw an exception upon their being no bank accounts
+                    if (bank_accounts == null || bank_accounts.length == 0) {
+                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
+                        this.getPrintStream().println("Error no bank accounts have been found.");
+                    } else {
+                        this.getPrintStream().write(BTPResponseCode.ALL_OK);
+                        this.getPrintStream().write(bank_accounts.length);
+                        for (int i = 0; i < bank_accounts.length; i++) {
+                            BTPAccount account = bank_accounts[i];
+                            BTPKeyContainer container = account.getExtraDetail();
+                            this.getPrintStream().println(Integer.toString(account.getAccountNumber()));
+                            this.getPrintStream().write(container.getTotalKeys());
+                            for (int b = 0; b < container.getTotalKeys(); b++) {
+                                BTPKey key = container.getKey(b);
+                                this.getPrintStream().println(key.getIndexName());
+                                this.getPrintStream().println(key.getValue());
+                            }
+
+                        }
+                    }
+                } catch (BTPPermissionDeniedException ex) {
+                    this.getPrintStream().write(BTPResponseCode.PERMISSION_DENIED_EXCEPTION);
+                    this.getPrintStream().println(ex.getMessage());
+                } catch (BTPDataException ex) {
+                    this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
+                    this.getPrintStream().println(ex.getMessage());
+                } catch (Exception ex) {
+                    // To be done later
                 }
             }
             break;
