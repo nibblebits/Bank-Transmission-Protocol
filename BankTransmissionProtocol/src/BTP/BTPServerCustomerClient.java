@@ -170,6 +170,26 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 }
             }
             break;
+
+            case BTPOperation.GET_BALANCE: {
+                int account_no = Integer.parseInt(this.getBufferedReader().readLine());
+                BTPAccount account = new BTPAccount(this.getCustomer().getId(), account_no, this.getSystem().getOurBank().getSortcode(), null);
+
+                try {
+                    double balance = this.getServer().getEventHandler().getBalance(new BalanceEnquiryEvent(account));
+                    this.getPrintStream().write(BTPResponseCode.ALL_OK);
+                    this.getPrintStream().println(Double.toString(balance));
+                } catch (BTPDataException ex) {
+                    this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
+                    this.getPrintStream().println(ex.getMessage());
+                } catch (BTPPermissionDeniedException ex) {
+                    this.getPrintStream().write(BTPResponseCode.PERMISSION_DENIED_EXCEPTION);
+                    this.getPrintStream().println(ex.getMessage());
+                } catch (Exception ex) {
+                    Logger.getLogger(BTPServerCustomerClient.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            break;
         }
     }
 
