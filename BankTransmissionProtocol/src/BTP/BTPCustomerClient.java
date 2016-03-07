@@ -66,7 +66,7 @@ public class BTPCustomerClient extends BTPClient {
         }
     }
 
-    public double getBalance(BTPAccount account) throws IOException, BTPDataException, Exception {
+    public double getBalance(BTPAccount account) throws BTPPermissionDeniedException, BTPDataException, IOException, Exception {
         if (this.isAuthenticated()) {
             this.getPrintStream().write(BTPOperation.GET_BALANCE);
             this.getPrintStream().println(account.getAccountNumber());
