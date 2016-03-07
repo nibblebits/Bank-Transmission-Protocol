@@ -63,8 +63,6 @@ public class BankClient {
     public void run() {
         // Show the login page
        getPageNavigator().showPage(new BankLogin(this));
-  
-     
     }
 
     public static void main(String[] args) throws IOException {
