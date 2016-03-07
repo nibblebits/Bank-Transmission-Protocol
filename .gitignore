@@ -5,3 +5,6 @@
 /BankClient/build/
 /BankClient/dist/
 /BankServer/dist/
+
+*.class
+*.properties
