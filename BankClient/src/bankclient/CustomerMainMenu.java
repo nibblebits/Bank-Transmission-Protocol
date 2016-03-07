@@ -28,7 +28,7 @@ public class CustomerMainMenu extends Page {
     public void showMainMenuOptions() {
         System.out.println("OPTIONS =====");
         System.out.println("1. Select a bank account");
-        System.out.println("2. Quit");
+        System.out.println("2. Logout");
     }
 
     public boolean processMainMenuOptions() {
@@ -40,7 +40,7 @@ public class CustomerMainMenu extends Page {
             }
             break;
             
-            case 2: { // Quit 
+            case 2: { // Logout
                 System.out.println("Thank you.");
                 return false;
             }
@@ -57,6 +57,13 @@ public class CustomerMainMenu extends Page {
                 break;
             }
         } while (true);
+        
+        try {
+            // Shutdown the client
+            this.getBankClient().getBTPClient().shutdown();
+        } catch (IOException ex) {
+            Logger.getLogger(CustomerMainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }
