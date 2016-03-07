@@ -104,4 +104,8 @@ public class BTPCustomerClient extends BTPClient {
               throw new BTP.exceptions.BTPPermissionDeniedException("You must be logged in to retrieve bank accounts.");
         }
     }
+    
+    public int getCustomerId() {
+        return this.customer_id;
+    }
 }
