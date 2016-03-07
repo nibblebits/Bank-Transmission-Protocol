@@ -20,7 +20,7 @@ public interface BTPServerEventHandler {
     public void transfer(RemoteTransferEvent event) throws BTP.exceptions.BTPAccountNotFoundException, BTP.exceptions.BTPBankNotFoundException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPInvalidAccountTypeException, BTP.exceptions.BTPPermissionDeniedException;
     public void transfer(LocalTransferEvent event) throws BTP.exceptions.BTPAccountNotFoundException, BTP.exceptions.BTPBankNotFoundException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPInvalidAccountTypeException, BTP.exceptions.BTPPermissionDeniedException;
     public BTPCustomer getCustomer(GetCustomerEvent event);
-    public double getBalance(BalanceEnquiryEvent event);
+    public double getBalance(BalanceEnquiryEvent event) throws BTP.exceptions.BTPAccountNotFoundException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPPermissionDeniedException, Exception;
     public void setSavingsAccountInterestRate(SetSavingsAccountInterestRateEvent event);
     public BTPTransaction[] getTransactionsOfAccount(GetTransactionsOfBankAccountEvent event);
 }

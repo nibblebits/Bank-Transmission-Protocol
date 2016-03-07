@@ -12,4 +12,5 @@ package BTP;
 public class BTPOperation {
     public static final int TRANSFER = 0;
     public static final int GET_BANK_ACCOUNTS = 1;
+    public static final int GET_BALANCE = 2;
 }

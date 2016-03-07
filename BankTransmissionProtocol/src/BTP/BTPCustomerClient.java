@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 public class BTPCustomerClient extends BTPClient {
 
     private int customer_id = -1;
+
     public BTPCustomerClient(BTPSystem system, Socket socket) throws IOException {
         super(system, socket);
 
@@ -65,8 +66,22 @@ public class BTPCustomerClient extends BTPClient {
         }
     }
 
-    public double getBalance(BTPAccount account) {
-        return 0;
+    public double getBalance(BTPAccount account) throws IOException, BTPDataException, Exception {
+        if (this.isAuthenticated()) {
+            this.getPrintStream().write(BTPOperation.GET_BALANCE);
+            this.getPrintStream().println(account.getAccountNumber());
+            int response = this.getBufferedReader().read();
+            if (response == BTPResponseCode.ALL_OK) {
+                return Double.valueOf(this.getBufferedReader().readLine());
+            } else {
+                String message = this.getBufferedReader().readLine();
+                this.getSystem().throwExceptionById(response, message);
+            }
+            return 0;
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException("Could not get balance of bank account: "
+                    + account.getAccountNumber() + " as this client is not authenticated");
+        }
     }
 
     public BTPTransaction[] getTransactions() {
@@ -95,16 +110,16 @@ public class BTPCustomerClient extends BTPClient {
                     );
                     extra.addKey(key);
                 }
-                
+
                 // This will be changed shortly their is a cleaner way of doing this.
-                accounts[i] = new BTPAccount(this.customer_id, account_no, this.getSystem().getOurBank().getSortcode(), extra);      
+                accounts[i] = new BTPAccount(this.customer_id, account_no, this.getSystem().getOurBank().getSortcode(), extra);
             }
             return accounts;
         } else {
-              throw new BTP.exceptions.BTPPermissionDeniedException("You must be logged in to retrieve bank accounts.");
+            throw new BTP.exceptions.BTPPermissionDeniedException("You must be logged in to retrieve bank accounts.");
         }
     }
-    
+
     public int getCustomerId() {
         return this.customer_id;
     }
