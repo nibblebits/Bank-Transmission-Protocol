@@ -61,6 +61,8 @@ public class SelectBankAccountPage extends Page {
 
                     if (selected_account != null) {
                         System.out.println("Account: " + account_no + " selected");
+                        this.getBankClient().getPageNavigator().showPage(new CustomerBankAccountMenu(this.getBankClient(), 
+                                new BTPAccount(btp_client.getCustomerId(), account_no, btp_client.getSystem().getOurBank().getSortcode(), null)));
 
                     } else {
                         System.out.println("The account " + account_no + " is not listed.");
