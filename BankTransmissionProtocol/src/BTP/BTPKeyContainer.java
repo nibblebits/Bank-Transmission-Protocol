@@ -29,4 +29,15 @@ public class BTPKeyContainer {
         }
         return null;
     }
+    
+    public BTPKey getKey(int index) {
+        if (index < this.keys.size()) {
+            return this.keys.get(index);
+        }
+        return null;
+    }
+    
+    public int getTotalKeys() {
+        return this.keys.size();
+    }
 }
