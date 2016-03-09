@@ -12,14 +12,10 @@ package BTP;
 public abstract class BTPEvent {
     private BTPClient client;
     
-    public BTPEvent() {
-        
-    }
-    
-    public void setClient(BTPClient client) {
+    public BTPEvent(BTPClient client) {
         this.client = client;
     }
-    
+   
     public BTPClient getClient() {
         return this.client;
     }
