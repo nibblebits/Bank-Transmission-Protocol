@@ -12,7 +12,8 @@ package BTP;
 public class CreateCustomerEvent extends BTPEvent {
     private final BTPCustomer customer;
     
-    public CreateCustomerEvent(BTPCustomer customer) {
+    public CreateCustomerEvent(BTPClient client, BTPCustomer customer) {
+        super(client);
         this.customer = customer;
     }
     

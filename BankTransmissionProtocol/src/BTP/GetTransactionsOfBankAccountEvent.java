@@ -15,7 +15,8 @@ public class GetTransactionsOfBankAccountEvent extends BTPEvent {
     private final BTPAccount account;
     private final Date date_from;
     private final Date date_to;
-    public GetTransactionsOfBankAccountEvent(BTPAccount account, Date date_from, Date date_to) {
+    public GetTransactionsOfBankAccountEvent(BTPClient client, BTPAccount account, Date date_from, Date date_to) {
+        super(client);
         this.account = account;
         this.date_from = date_from;
         this.date_to = date_to;

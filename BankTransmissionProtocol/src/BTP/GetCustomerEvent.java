@@ -11,7 +11,8 @@ package BTP;
  */
 public class GetCustomerEvent extends BTPEvent {
     private final int customer_id;
-    public GetCustomerEvent(int customer_id) {
+    public GetCustomerEvent(BTPClient client, int customer_id) {
+        super(client);
         this.customer_id = customer_id;
     }
     

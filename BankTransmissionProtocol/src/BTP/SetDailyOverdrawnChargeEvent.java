@@ -13,7 +13,8 @@ public class SetDailyOverdrawnChargeEvent extends BTPEvent {
     private final BTPAccount account;
     private final double amount;
     
-    public SetDailyOverdrawnChargeEvent(BTPAccount account, double amount) {
+    public SetDailyOverdrawnChargeEvent(BTPClient client, BTPAccount account, double amount) {
+        super(client);
         this.account = account;
         this.amount = amount;
     }

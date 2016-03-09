@@ -9,9 +9,10 @@ package BTP;
  *
  * @author Daniel
  */
-public class GetBankAccountsOfCustomerEvent {
+public class GetBankAccountsOfCustomerEvent extends BTPEvent {
     private final int customerId;
-    public GetBankAccountsOfCustomerEvent(int customerId) {
+    public GetBankAccountsOfCustomerEvent(BTPClient client, int customerId) {
+        super(client);
         this.customerId = customerId;
     }
     

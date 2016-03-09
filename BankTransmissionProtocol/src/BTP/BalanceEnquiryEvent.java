@@ -12,7 +12,8 @@ package BTP;
 public class BalanceEnquiryEvent extends BTPEvent {
     private final BTPAccount account;
     
-    public BalanceEnquiryEvent(BTPAccount account) {
+    public BalanceEnquiryEvent(BTPClient client, BTPAccount account) {
+        super(client);
         this.account = account;
     }
     

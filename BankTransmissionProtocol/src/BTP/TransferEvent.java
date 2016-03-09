@@ -9,12 +9,13 @@ package BTP;
  *
  * @author Daniel
  */
-public abstract class TransferEvent {
+public abstract class TransferEvent extends BTPEvent {
     private final BTPAccount account_from;
     private final BTPAccount account_to;
     private final double amount;
     
-    public TransferEvent(BTPAccount account_from, BTPAccount account_to, double amount) {
+    public TransferEvent(BTPClient client, BTPAccount account_from, BTPAccount account_to, double amount) {
+        super(client);
         this.account_from = account_from;
         this.account_to = account_to;
         this.amount = amount;

@@ -11,8 +11,8 @@ package BTP;
  */
 public class RemoteTransferEvent extends TransferEvent {
 
-    public RemoteTransferEvent(BTPAccount account_from, BTPAccount account_to, double amount) {
-        super(account_from, account_to, amount);
+    public RemoteTransferEvent(BTPClient client,BTPAccount account_from, BTPAccount account_to, double amount) {
+        super(client, account_from, account_to, amount);
     }
     
 }

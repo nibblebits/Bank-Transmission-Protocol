@@ -10,7 +10,7 @@ package BTP;
  * @author Daniel
  */
 public class GetBankAccountTypesEvent extends BTPEvent {
-    public GetBankAccountTypesEvent() {
-        
+    public GetBankAccountTypesEvent(BTPClient client) {
+        super(client);
     }
 }

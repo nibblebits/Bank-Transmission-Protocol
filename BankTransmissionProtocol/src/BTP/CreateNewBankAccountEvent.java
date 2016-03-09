@@ -13,7 +13,8 @@ public class CreateNewBankAccountEvent extends BTPEvent {
     private final int customer_id;
     private final BTPAccount bank_account;
     
-    public CreateNewBankAccountEvent(int customer_id, BTPAccount bank_account) {
+    public CreateNewBankAccountEvent(BTPClient client, int customer_id, BTPAccount bank_account) {
+        super(client);
         this.customer_id = customer_id;
         this.bank_account = bank_account;
     }

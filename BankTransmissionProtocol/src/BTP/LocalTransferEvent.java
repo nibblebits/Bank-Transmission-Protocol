@@ -11,8 +11,8 @@ package BTP;
  */
 public class LocalTransferEvent extends TransferEvent {
 
-    public LocalTransferEvent(BTPAccount account_from, BTPAccount account_to, double amount) {
-        super(account_from, account_to, amount);
+    public LocalTransferEvent(BTPClient client, BTPAccount account_from, BTPAccount account_to, double amount) {
+        super(client, account_from, account_to, amount);
     }
     
 }

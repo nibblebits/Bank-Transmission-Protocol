@@ -13,7 +13,8 @@ public class SetSavingsAccountInterestRateEvent extends BTPEvent {
     private final BTPAccount account;
     private final double amount;
     
-    public SetSavingsAccountInterestRateEvent(BTPAccount account, double amount) {
+    public SetSavingsAccountInterestRateEvent(BTPClient client, BTPAccount account, double amount) {
+        super(client);
         this.account = account;
         this.amount = amount;
     }
