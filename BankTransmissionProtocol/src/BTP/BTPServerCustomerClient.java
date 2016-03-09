@@ -81,7 +81,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 double amount = Double.parseDouble(this.getBufferedReader().readLine());
                 if (account_to.getSortCode().equals(this.getServer().getSystem().getOurBank().getSortcode())) {
                     try {
-                        this.getServer().getEventHandler().transfer(new LocalTransferEvent(account_from, account_to, amount));
+                        this.getServer().getEventHandler().transfer(new LocalTransferEvent(this, account_from, account_to, amount));
                         this.getPrintStream().write(BTPResponseCode.ALL_OK);
                     } catch (Exception ex) {
                         // Send an exception response to the client as their was an error
@@ -89,7 +89,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                     }
                 } else {
                     try {
-                        this.getServer().getEventHandler().transfer(new RemoteTransferEvent(account_from, account_to, amount));
+                        this.getServer().getEventHandler().transfer(new RemoteTransferEvent(this, account_from, account_to, amount));
                         this.getPrintStream().write(BTPResponseCode.ALL_OK);
                     } catch (Exception ex) {
                         // Send an exception response to the client as their was an error
@@ -101,7 +101,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
 
             case BTPOperation.GET_BANK_ACCOUNTS: {
                 try {
-                    BTPAccount[] bank_accounts = this.getServer().getEventHandler().getBankAccountsOfCustomer(new GetBankAccountsOfCustomerEvent(this.customer.getId()));
+                    BTPAccount[] bank_accounts = this.getServer().getEventHandler().getBankAccountsOfCustomer(new GetBankAccountsOfCustomerEvent(this, this.customer.getId()));
                     // A default check just in case the event handler does not throw an exception upon their being no bank accounts
                     if (bank_accounts == null || bank_accounts.length == 0) {
                         this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
@@ -134,7 +134,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 BTPAccount account = new BTPAccount(this.getCustomer().getId(), account_no, this.getSystem().getOurBank().getSortcode(), null);
 
                 try {
-                    double balance = this.getServer().getEventHandler().getBalance(new BalanceEnquiryEvent(account));
+                    double balance = this.getServer().getEventHandler().getBalance(new BalanceEnquiryEvent(this, account));
                     this.getPrintStream().write(BTPResponseCode.ALL_OK);
                     this.getPrintStream().println(Double.toString(balance));
                 } catch (Exception ex) {
