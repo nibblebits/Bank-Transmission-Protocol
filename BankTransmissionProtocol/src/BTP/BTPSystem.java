@@ -105,8 +105,16 @@ public class BTPSystem {
             throw new BTP.exceptions.BTPPermissionDeniedException(message);
         } else if (exception_id == BTPResponseCode.DATA_EXCEPTION) {
             throw new BTP.exceptions.BTPDataException(message);
+        } else if(exception_id == BTPResponseCode.BANK_NOT_FOUND_EXCEPTION) {
+            throw new BTP.exceptions.BTPBankNotFoundException(message);
+        } else if (exception_id == BTPResponseCode.INVALID_ACCOUNT_TYPE_EXCEPTION) {
+            throw new BTP.exceptions.BTPInvalidAccountTypeException(message);
+        } else if (exception_id == BTPResponseCode.ACCOUNT_NOT_FOUND_EXCEPTION) {
+            throw new BTP.exceptions.BTPAccountNotFoundException(message);
+        } else if(exception_id == BTPResponseCode.UNKNOWN_EXCEPTION) {
+            throw new BTP.exceptions.BTPUnknownException(message);
         } else {
-            throw new Exception(message);
+            throw new BTP.exceptions.BTPUnknownException(message);
         }
     }
 }
