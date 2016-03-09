@@ -51,22 +51,9 @@ public class BTPServerCustomerClient extends BTPServerClient {
             this.getPrintStream().write(BTPResponseCode.ALL_OK);
             this.setAuthenticated(true);
             this.customer = new BTPCustomer(customer_id, null, null, null, null, null);
-        } catch (BTP.exceptions.BTPPermissionDeniedException ex) {
-            // Send a permission denied status since the login was denied
-            this.getPrintStream().write(BTPResponseCode.PERMISSION_DENIED_EXCEPTION);
-            // Send the failure message
-            this.getPrintStream().println(ex.getMessage());
-            throw ex;
-        } catch (BTP.exceptions.BTPDataException ex) {
-            // Send a data exception status since their was a data issue
-            this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-            // Send the failure message
-            this.getPrintStream().println(ex.getMessage());
-            throw ex;
         } catch (Exception ex) {
-            // We don't know what this exception is so send it as a standard exception
-            this.getPrintStream().write(5959);
-            this.getPrintStream().println(ex.getMessage());
+            // Send the exception response to the client as their was a problem
+            this.sendExceptionResponseOverSocket(ex);
         }
 
         // Flush the print stream
@@ -96,41 +83,17 @@ public class BTPServerCustomerClient extends BTPServerClient {
                     try {
                         this.getServer().getEventHandler().transfer(new LocalTransferEvent(account_from, account_to, amount));
                         this.getPrintStream().write(BTPResponseCode.ALL_OK);
-                    } catch (BTPAccountNotFoundException ex) {
-                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
-                    } catch (BTPBankNotFoundException ex) {
-                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
-                    } catch (BTPDataException ex) {
-                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
-                    } catch (BTPInvalidAccountTypeException ex) {
-                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
-                    } catch (BTPPermissionDeniedException ex) {
-                        this.getPrintStream().write(BTPResponseCode.PERMISSION_DENIED_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
+                    } catch (Exception ex) {
+                        // Send an exception response to the client as their was an error
+                        this.sendExceptionResponseOverSocket(ex);
                     }
                 } else {
                     try {
                         this.getServer().getEventHandler().transfer(new RemoteTransferEvent(account_from, account_to, amount));
                         this.getPrintStream().write(BTPResponseCode.ALL_OK);
-                    } catch (BTPAccountNotFoundException ex) {
-                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
-                    } catch (BTPBankNotFoundException ex) {
-                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
-                    } catch (BTPDataException ex) {
-                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
-                    } catch (BTPInvalidAccountTypeException ex) {
-                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
-                    } catch (BTPPermissionDeniedException ex) {
-                        this.getPrintStream().write(BTPResponseCode.PERMISSION_DENIED_EXCEPTION);
-                        this.getPrintStream().println(ex.getMessage());
+                    } catch (Exception ex) {
+                        // Send an exception response to the client as their was an error
+                        this.sendExceptionResponseOverSocket(ex);
                     }
                 }
             }
@@ -159,14 +122,9 @@ public class BTPServerCustomerClient extends BTPServerClient {
 
                         }
                     }
-                } catch (BTPPermissionDeniedException ex) {
-                    this.getPrintStream().write(BTPResponseCode.PERMISSION_DENIED_EXCEPTION);
-                    this.getPrintStream().println(ex.getMessage());
-                } catch (BTPDataException ex) {
-                    this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                    this.getPrintStream().println(ex.getMessage());
                 } catch (Exception ex) {
-                    // To be done later
+                    // Send an exception response to the client as their was an error
+                    this.sendExceptionResponseOverSocket(ex);
                 }
             }
             break;
@@ -179,14 +137,9 @@ public class BTPServerCustomerClient extends BTPServerClient {
                     double balance = this.getServer().getEventHandler().getBalance(new BalanceEnquiryEvent(account));
                     this.getPrintStream().write(BTPResponseCode.ALL_OK);
                     this.getPrintStream().println(Double.toString(balance));
-                } catch (BTPDataException ex) {
-                    this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                    this.getPrintStream().println(ex.getMessage());
-                } catch (BTPPermissionDeniedException ex) {
-                    this.getPrintStream().write(BTPResponseCode.PERMISSION_DENIED_EXCEPTION);
-                    this.getPrintStream().println(ex.getMessage());
                 } catch (Exception ex) {
-                    Logger.getLogger(BTPServerCustomerClient.class.getName()).log(Level.SEVERE, null, ex);
+                    // Send an exception response to the client as their was an error
+                    this.sendExceptionResponseOverSocket(ex);
                 }
             }
             break;
