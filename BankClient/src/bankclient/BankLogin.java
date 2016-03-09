@@ -8,6 +8,7 @@ package bankclient;
 import BTP.BTPClient;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,11 +29,16 @@ public class BankLogin extends Page {
     }
 
     public void login() {
-        int customer_id;
+        int customer_id = -1;
         String password;
         System.out.println("Login >>");
         System.out.println("Enter your customer id: ");
+        try {
         customer_id = scanner.nextInt();
+        } catch(InputMismatchException ex) {
+            System.err.println("The customer id has to be an integer");
+            return;
+        }
         System.out.println("Enter your password: ");
         password = scanner.next();
 
