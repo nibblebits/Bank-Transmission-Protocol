@@ -93,7 +93,21 @@ public abstract class BTPClient {
             this.getPrintStream().println(key.getIndexName());
             this.getPrintStream().println(key.getValue());
         }
-        
+
         this.getPrintStream().flush();
+    }
+
+    protected void writeTransactionToSocket(BTPTransaction transaction) {
+        this.writeAccountToSocket(transaction.getSenderAccount());
+        this.writeAccountToSocket(transaction.getReceiverAccount());
+        this.getPrintStream().println(transaction.getAmountTransferred());
+        this.getPrintStream().flush();
+    }
+
+    protected BTPTransaction readTransactionFromSocket() throws IOException {
+        return new BTPTransaction(
+                this.readAccountFromSocket(),
+                this.readAccountFromSocket(),
+                Double.valueOf(this.getBufferedReader().readLine()));
     }
 }
