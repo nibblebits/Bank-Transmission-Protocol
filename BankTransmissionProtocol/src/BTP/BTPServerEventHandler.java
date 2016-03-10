@@ -22,5 +22,5 @@ public interface BTPServerEventHandler {
     public BTPCustomer getCustomer(GetCustomerEvent event);
     public double getBalance(BalanceEnquiryEvent event) throws BTP.exceptions.BTPAccountNotFoundException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPPermissionDeniedException, Exception;
     public void setSavingsAccountInterestRate(SetSavingsAccountInterestRateEvent event);
-    public BTPTransaction[] getTransactionsOfAccount(GetTransactionsOfBankAccountEvent event);
+    public BTPTransaction[] getTransactionsOfAccount(GetTransactionsOfBankAccountEvent event) throws BTP.exceptions.BTPPermissionDeniedException, BTP.exceptions.BTPAccountNotFoundException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPInvalidAccountTypeException, BTP.exceptions.BTPUnknownException;
 }
