@@ -8,6 +8,7 @@ package BTP;
 import java.io.IOException;
 import java.net.Socket;
 import BTP.exceptions.*;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -84,7 +85,21 @@ public class BTPCustomerClient extends BTPClient {
         }
     }
 
-    public BTPTransaction[] getTransactions() {
+    public BTPTransaction[] getTransactions(BTPAccount account, Date from, Date to) throws BTPPermissionDeniedException, IOException {
+        if (this.isAuthenticated()) {
+            this.getPrintStream().write(BTPOperation.GET_TRANSACTIONS);
+            this.getPrintStream().println(from.getTime());
+            this.getPrintStream().println(to.getTime());
+            int response = this.getBufferedReader().read();
+            if (response == BTPResponseCode.ALL_OK) {
+                int total_transactions = this.getBufferedReader().read();
+                for (int i = 0; i < total_transactions; i++) {
+                    
+                }
+            }
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException("You must be authenticated to get the transactions of the bank account " + account.getAccountNumber());
+        }
         return null;
     }
 
@@ -100,19 +115,7 @@ public class BTPCustomerClient extends BTPClient {
             int amount = this.getBufferedReader().read();
             accounts = new BTPAccount[amount];
             for (int i = 0; i < amount; i++) {
-                int account_no = Integer.parseInt(this.getBufferedReader().readLine());
-                int total_options = this.getBufferedReader().read();
-                BTPKeyContainer extra = new BTPKeyContainer();
-                for (int b = 0; b < total_options; b++) {
-                    BTPKey key = new BTPKey(
-                            this.getBufferedReader().readLine(),
-                            this.getBufferedReader().readLine()
-                    );
-                    extra.addKey(key);
-                }
-
-                // This will be changed shortly their is a cleaner way of doing this.
-                accounts[i] = new BTPAccount(this.customer_id, account_no, this.getSystem().getOurBank().getSortcode(), extra);
+               accounts[i] = this.readAccountFromSocket();
             }
             return accounts;
         } else {
