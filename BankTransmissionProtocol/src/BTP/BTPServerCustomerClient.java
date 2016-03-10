@@ -111,15 +111,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                         this.getPrintStream().write(bank_accounts.length);
                         for (int i = 0; i < bank_accounts.length; i++) {
                             BTPAccount account = bank_accounts[i];
-                            BTPKeyContainer container = account.getExtraDetail();
-                            this.getPrintStream().println(Integer.toString(account.getAccountNumber()));
-                            this.getPrintStream().write(container.getTotalKeys());
-                            for (int b = 0; b < container.getTotalKeys(); b++) {
-                                BTPKey key = container.getKey(b);
-                                this.getPrintStream().println(key.getIndexName());
-                                this.getPrintStream().println(key.getValue());
-                            }
-
+                            this.writeAccountToSocket(account);
                         }
                     }
                 } catch (Exception ex) {
