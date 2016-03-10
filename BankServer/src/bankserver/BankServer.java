@@ -23,13 +23,22 @@ public class BankServer implements BTPServerEventHandler {
 
     private Database database = null;
     private BTPBank this_bank = null;
+    private BTPSystem system = null;
+
+    public BTPSystem getSystem() {
+        return this.system;
+    }
+
+    public Database getDatabase() {
+        return this.database;
+    }
 
     public void init() {
-        database = new Database();
+        database = new Database(this);
         database.setup();
         this_bank = new BTPBank("22-33-44", "dmwkei38823r238r23amn3b4583j", "127.0.0.1", 4444);
 
-        BTPSystem system = new BTPSystem(this_bank);
+        system = new BTPSystem(this_bank);
         BTPServer server = system.newServer(this);
         try {
             server.listen();
@@ -38,9 +47,9 @@ public class BankServer implements BTPServerEventHandler {
             Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void run() {
-        
+
     }
 
     public static void main(String[] args) {
@@ -54,17 +63,21 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized void customerLogin(CustomerLoginEvent event) throws BTPPermissionDeniedException, BTPDataException {
+    public synchronized void customerLogin(CustomerLoginEvent event) throws BTPPermissionDeniedException, BTPDataException, Exception {
         DBCustomer db_customer;
-        
+
         try {
             db_customer = database.getCustomer(event.getCustomerId());
             if (db_customer != null && db_customer.getPassword().equals(event.getPassword())) {
                 // Login was success so return
                 return;
             }
+        } catch (SQLException ex) {
+            Logger.getLogger(SQLException.class.getName()).log(Level.SEVERE, null, ex);
+            throw new BTP.exceptions.BTPDataException("An issue occured when reading the database");
         } catch (Exception ex) {
-            Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Exception.class.getName()).log(Level.SEVERE, null, ex);
+            throw new BTP.exceptions.BTPDataException("An unknown issue occured.");
         }
         throw new BTP.exceptions.BTPPermissionDeniedException("Failed to login due to bad login details");
     }
@@ -127,8 +140,19 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized double getBalance(BalanceEnquiryEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public synchronized double getBalance(BalanceEnquiryEvent event) throws BTPPermissionDeniedException, SQLException, BTPDataException {
+        BTPClient client = event.getClient();
+        BTPAccount bank_account_to_view = event.getAccount();
+
+        BTPServerCustomerClient c_client = (BTPServerCustomerClient) client;
+        DBCustomer c = database.getCustomer(c_client.getCustomer().getId());
+        DBAccount c_account = c.getBankAccount(event.getAccount().getAccountNumber());
+        if (c_account == null) {
+            throw new BTP.exceptions.BTPDataException("The bank account " + bank_account_to_view.getAccountNumber() + " does not exist");
+        }
+        return c_account.getBalance();
+
+        // throw new BTP.exceptions.BTPPermissionDeniedException("This is not your bank account! This incident will be reported. ");
     }
 
     @Override
@@ -138,7 +162,10 @@ public class BankServer implements BTPServerEventHandler {
 
     @Override
     public synchronized BTPTransaction[] getTransactionsOfAccount(GetTransactionsOfBankAccountEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        BTPTransaction[] transactions = new BTPTransaction[2];
+        transactions[0] = new BTPTransaction(new BTPAccount(-1, 123456789, "33-22-11", null), new BTPAccount(-1, 55555554, "30-12-18", null), 42.87);
+        transactions[1] = new BTPTransaction(new BTPAccount(-1, 123456789, "33-22-11", null), new BTPAccount(-1, 55555554, "30-12-18", null), 12.18);
+        return transactions;
     }
 
 }

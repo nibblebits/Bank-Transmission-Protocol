@@ -5,6 +5,7 @@
  */
 package bankserver;
 
+import BTP.BTPAccount;
 import BTP.BTPCustomer;
 import BTP.BTPKey;
 import BTP.BTPKeyContainer;
@@ -25,7 +26,12 @@ public class Database {
     private Connection db_con = null;
     private PreparedStatement stmt = null;
     private ResultSet rs = null;
-
+    private BankServer server = null;
+    
+    public Database(BankServer server) {
+        this.server = server;
+    }
+    
     public void setup() {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -65,13 +71,13 @@ public class Database {
 
             // Close the result set
             rs.close();
-            
+
             BTPKeyContainer extra_data = new BTPKeyContainer();
             // Now to get the extra data
             sql = "SELECT `key`,`value` FROM `person_extra` WHERE `person_id` = ?";
             stmt = db_con.prepareStatement(sql);
             stmt.setInt(1, person_id);
-            
+
             rs = stmt.executeQuery();
             while (rs.next()) {
                 BTPKey key = new BTPKey(rs.getString("key"), rs.getString("value"));
@@ -81,8 +87,22 @@ public class Database {
             // Close the result set
             rs.close();
 
-            customer = new DBCustomer(customer_id, title, firstname, middlename, surname, extra_data, password);
+            customer = new DBCustomer(this, customer_id, title, firstname, middlename, surname, extra_data, password);
         }
         return customer;
+    }
+
+    public DBAccount getBankAccount(int account_no) throws SQLException {
+        DBAccount bank_account = null;
+        String sql = "SELECT * FROM `bank_accounts` WHERE `bank_account_id` = ?";
+        stmt = db_con.prepareStatement(sql);
+        stmt.setInt(1, account_no);
+        rs = stmt.executeQuery();
+        if (rs.next()) {
+            bank_account = new DBAccount(rs.getInt("customer_id"), rs.getInt("bank_account_id"), this.server.getSystem().getOurBank().getSortcode(), null, rs.getDouble("balance"));
+        }
+        
+        rs.close();
+        return bank_account;
     }
 }
