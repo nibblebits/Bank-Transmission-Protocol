@@ -10,8 +10,10 @@ import BTP.exceptions.BTPBankNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPInvalidAccountTypeException;
 import BTP.exceptions.BTPPermissionDeniedException;
+import BTP.exceptions.BTPUnknownException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,19 +22,19 @@ import java.util.logging.Logger;
  * @author Daniel
  */
 public class BTPServerCustomerClient extends BTPServerClient {
-
+    
     private BTPCustomer customer;
-
+    
     public BTPServerCustomerClient(BTPSystem system, BTPServer server, Socket client) throws IOException {
         super(system, server, client);
         this.customer = null;
     }
-
+    
     @Override
     public void run() {
         super.run();
     }
-
+    
     @Override
     protected void authenticate() throws Exception {
         int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
@@ -59,7 +61,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
         // Flush the print stream
         this.getPrintStream().flush();
     }
-
+    
     @Override
     protected void handleSocketInput() throws IOException {
         int operation = this.getBufferedReader().read();
@@ -77,7 +79,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                         this.getBufferedReader().readLine(),
                         null
                 );
-
+                
                 double amount = Double.parseDouble(this.getBufferedReader().readLine());
                 if (account_to.getSortCode().equals(this.getServer().getSystem().getOurBank().getSortcode())) {
                     try {
@@ -98,7 +100,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 }
             }
             break;
-
+            
             case BTPOperation.GET_BANK_ACCOUNTS: {
                 try {
                     BTPAccount[] bank_accounts = this.getServer().getEventHandler().getBankAccountsOfCustomer(new GetBankAccountsOfCustomerEvent(this, this.customer.getId()));
@@ -120,11 +122,11 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 }
             }
             break;
-
+            
             case BTPOperation.GET_BALANCE: {
                 int account_no = Integer.parseInt(this.getBufferedReader().readLine());
                 BTPAccount account = new BTPAccount(this.getCustomer().getId(), account_no, this.getSystem().getOurBank().getSortcode(), null);
-
+                
                 try {
                     double balance = this.getServer().getEventHandler().getBalance(new BalanceEnquiryEvent(this, account));
                     this.getPrintStream().write(BTPResponseCode.ALL_OK);
@@ -135,9 +137,38 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 }
             }
             break;
+            
+            case BTPOperation.GET_TRANSACTIONS: {
+                BTPAccount account;
+                Date date_from = new Date();
+                Date date_to = new Date();
+                account = new BTPAccount(
+                        this.getCustomer().getId(),
+                        Integer.parseInt(this.getBufferedReader().readLine()),
+                        this.getSystem().getOurBank().getSortcode(),
+                        null
+                );
+                date_from.setTime(Long.valueOf(this.getBufferedReader().readLine()));
+                date_to.setTime(Long.valueOf(this.getBufferedReader().readLine()));
+                
+                try {
+                    BTPTransaction[] transactions = this.getServer().getEventHandler().getTransactionsOfAccount(
+                            new GetTransactionsOfBankAccountEvent(this, account, date_from, date_to)
+                    );
+                    this.getPrintStream().write(BTPResponseCode.ALL_OK);
+                    this.getPrintStream().write(transactions.length);
+                    for (BTPTransaction transaction : transactions) {
+                        this.writeTransactionToSocket(transaction);
+                    }
+                } catch (Exception ex) {
+                    this.sendExceptionResponseOverSocket(ex);
+                }
+                this.getPrintStream().flush();
+            }
+            break;
         }
     }
-
+    
     public BTPCustomer getCustomer() {
         return this.customer;
     }
