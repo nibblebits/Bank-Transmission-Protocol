@@ -85,22 +85,28 @@ public class BTPCustomerClient extends BTPClient {
         }
     }
 
-    public BTPTransaction[] getTransactions(BTPAccount account, Date from, Date to) throws BTPPermissionDeniedException, IOException {
+    public BTPTransaction[] getTransactions(BTPAccount account, Date from, Date to) throws BTPPermissionDeniedException, IOException, Exception {
+        BTPTransaction[] transactions = null;
         if (this.isAuthenticated()) {
             this.getPrintStream().write(BTPOperation.GET_TRANSACTIONS);
+            this.getPrintStream().println(account.getAccountNumber());
             this.getPrintStream().println(from.getTime());
             this.getPrintStream().println(to.getTime());
             int response = this.getBufferedReader().read();
             if (response == BTPResponseCode.ALL_OK) {
                 int total_transactions = this.getBufferedReader().read();
+                transactions = new BTPTransaction[total_transactions];
                 for (int i = 0; i < total_transactions; i++) {
-                    
+                    transactions[i] = this.readTransactionFromSocket();
                 }
+            } else {
+                String message = this.getBufferedReader().readLine();
+                this.getSystem().throwExceptionById(response, message);
             }
         } else {
             throw new BTP.exceptions.BTPPermissionDeniedException("You must be authenticated to get the transactions of the bank account " + account.getAccountNumber());
         }
-        return null;
+        return transactions;
     }
 
     public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException, BTPDataException, Exception {
@@ -115,7 +121,7 @@ public class BTPCustomerClient extends BTPClient {
             int amount = this.getBufferedReader().read();
             accounts = new BTPAccount[amount];
             for (int i = 0; i < amount; i++) {
-               accounts[i] = this.readAccountFromSocket();
+                accounts[i] = this.readAccountFromSocket();
             }
             return accounts;
         } else {
