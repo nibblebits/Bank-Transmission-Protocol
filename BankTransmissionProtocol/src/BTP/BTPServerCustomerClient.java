@@ -67,18 +67,8 @@ public class BTPServerCustomerClient extends BTPServerClient {
         int operation = this.getBufferedReader().read();
         switch (operation) {
             case BTPOperation.TRANSFER: {
-                BTPAccount account_from = new BTPAccount(
-                        this.getCustomer().getId(),
-                        Integer.parseInt(this.getBufferedReader().readLine()),
-                        this.getBufferedReader().readLine(),
-                        null
-                );
-                BTPAccount account_to = new BTPAccount(
-                        -1,
-                        Integer.parseInt(this.getBufferedReader().readLine()),
-                        this.getBufferedReader().readLine(),
-                        null
-                );
+                BTPAccount account_from = this.readAccountFromSocket();
+                BTPAccount account_to = this.readAccountFromSocket();
                 
                 double amount = Double.parseDouble(this.getBufferedReader().readLine());
                 if (account_to.getSortCode().equals(this.getServer().getSystem().getOurBank().getSortcode())) {

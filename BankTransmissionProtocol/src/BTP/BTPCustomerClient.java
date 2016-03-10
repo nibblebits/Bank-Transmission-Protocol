@@ -52,10 +52,8 @@ public class BTPCustomerClient extends BTPClient {
     public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) throws BTPPermissionDeniedException, IOException, BTPDataException, Exception {
         if (this.isAuthenticated()) {
             this.getPrintStream().write(BTPOperation.TRANSFER);
-            this.getPrintStream().println(Integer.toString(account_from.getAccountNumber()));
-            this.getPrintStream().println(account_from.getSortCode());
-            this.getPrintStream().println(Integer.toString(account_to.getAccountNumber()));
-            this.getPrintStream().println(account_to.getSortCode());
+            this.writeAccountToSocket(account_from);
+            this.writeAccountToSocket(account_to);
             this.getPrintStream().println(Double.toString(amount));
             int response = this.getBufferedReader().read();
             if (response != BTPResponseCode.ALL_OK) {
