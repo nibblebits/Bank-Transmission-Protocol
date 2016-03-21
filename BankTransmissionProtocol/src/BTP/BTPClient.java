@@ -27,13 +27,15 @@ public abstract class BTPClient {
     private boolean authenticated;
     private PrintStream output;
     private BufferedReader input;
-
+    private int peers_build;
+    
     public BTPClient(BTPSystem system, Socket socket) throws IOException {
         this.system = system;
         this.socket = socket;
         this.output = new PrintStream(socket.getOutputStream(), true);
         this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.authenticated = false;
+        this.peers_build = -1;
     }
 
     protected synchronized PrintStream getPrintStream() {
@@ -62,6 +64,7 @@ public abstract class BTPClient {
 
     public void shutdown() throws IOException {
         if (this.socket != null) {
+            this.getPrintStream().write(BTPOperation.SHUTDOWN);
             this.socket.close();
         }
     }
@@ -109,5 +112,13 @@ public abstract class BTPClient {
                 this.readAccountFromSocket(),
                 this.readAccountFromSocket(),
                 Double.valueOf(this.getBufferedReader().readLine()));
+    }
+    
+    public int getPeersClientBuild() throws IOException {
+        return this.peers_build;
+    }
+    
+    public void setPeersClientBuild(int build) {
+        this.peers_build = build;
     }
 }
