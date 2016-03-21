@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -18,6 +19,17 @@ public class BTPAccount {
 
     public BTPAccount(int customer_id, int account_no, String sort_code, BTPKeyContainer extra) {
         this.customer_id = customer_id;
+        this.account_no = account_no;
+        this.sort_code = sort_code;
+        if (extra != null) {
+            this.extra = extra;
+        } else {
+            this.extra = new BTPKeyContainer();
+        }
+    }
+
+    public BTPAccount(int account_no, String sort_code, BTPKeyContainer extra) {
+        this.customer_id = -1;
         this.account_no = account_no;
         this.sort_code = sort_code;
         if (extra != null) {
