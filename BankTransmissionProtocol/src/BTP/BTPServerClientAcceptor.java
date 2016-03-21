@@ -38,7 +38,12 @@ public class BTPServerClientAcceptor implements Runnable {
                     public void run() {
                         try {
                             BTPServerClient client = null;
+                            int client_btp_version = socket.getInputStream().read();
                             int auth_type = socket.getInputStream().read();
+
+                            // Now send our version
+                            socket.getOutputStream().write(server.getSystem().getBuildVersion());
+                            socket.getOutputStream().flush();
 
                             if (auth_type == BTPClient.Customer) { // Customer Login
                                 client = new BTPServerCustomerClient(server.getSystem(), server, socket);
@@ -51,10 +56,11 @@ public class BTPServerClientAcceptor implements Runnable {
                             }
 
                             if (client != null) {
+                                client.setPeersClientBuild(client_btp_version);
                                 server.addClient(client);
                                 // we are already in a thread so no need to create another one. Just invoke its run method
                                 client.run();
-                                
+
                                 // Now shutdown the client
                                 try {
                                     client.shutdown();
@@ -62,6 +68,7 @@ public class BTPServerClientAcceptor implements Runnable {
                                     Logger.getLogger(BTPServerClient.class.getName()).log(Level.SEVERE, null, ex1);
                                 }
                             } else {
+                                // An invalid client was chosen so close the socket.
                                 socket.close();
                             }
                         } catch (IOException ex) {
