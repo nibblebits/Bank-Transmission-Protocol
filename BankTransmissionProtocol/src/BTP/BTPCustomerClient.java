@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author Daniel
  */
-public class BTPCustomerClient extends BTPClient {
+public class BTPCustomerClient extends BTPConnectorClient {
 
     private int customer_id = -1;
 
@@ -27,7 +27,9 @@ public class BTPCustomerClient extends BTPClient {
 
     public boolean login(int customer_id, String password) throws BTPPermissionDeniedException, BTPDataException, Exception {
         // Send the customer client authentication type.
+        this.getPrintStream().write(this.getSystem().getBuildVersion());
         this.getPrintStream().write(BTPClient.Customer);
+        this.setPeersClientBuild(this.getBufferedReader().read());
         this.getPrintStream().println(Integer.toString(customer_id));
         this.getPrintStream().println(password);
         this.getPrintStream().flush();
@@ -94,6 +96,7 @@ public class BTPCustomerClient extends BTPClient {
             if (response == BTPResponseCode.ALL_OK) {
                 int total_transactions = this.getBufferedReader().read();
                 transactions = new BTPTransaction[total_transactions];
+
                 for (int i = 0; i < total_transactions; i++) {
                     transactions[i] = this.readTransactionFromSocket();
                 }

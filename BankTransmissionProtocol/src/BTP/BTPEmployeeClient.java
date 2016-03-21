@@ -12,7 +12,7 @@ import java.net.Socket;
  *
  * @author Daniel
  */
-public class BTPEmployeeClient extends BTPClient{
+public class BTPEmployeeClient extends BTPConnectorClient {
 
     public BTPEmployeeClient(BTPSystem system, Socket socket) throws IOException {
         super(system, socket);
