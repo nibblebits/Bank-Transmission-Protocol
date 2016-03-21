@@ -8,7 +8,12 @@ package BTP;
 import BTP.exceptions.BTPBankNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -105,16 +110,32 @@ public class BTPSystem {
             throw new BTP.exceptions.BTPPermissionDeniedException(message);
         } else if (exception_id == BTPResponseCode.DATA_EXCEPTION) {
             throw new BTP.exceptions.BTPDataException(message);
-        } else if(exception_id == BTPResponseCode.BANK_NOT_FOUND_EXCEPTION) {
+        } else if (exception_id == BTPResponseCode.BANK_NOT_FOUND_EXCEPTION) {
             throw new BTP.exceptions.BTPBankNotFoundException(message);
         } else if (exception_id == BTPResponseCode.INVALID_ACCOUNT_TYPE_EXCEPTION) {
             throw new BTP.exceptions.BTPInvalidAccountTypeException(message);
         } else if (exception_id == BTPResponseCode.ACCOUNT_NOT_FOUND_EXCEPTION) {
             throw new BTP.exceptions.BTPAccountNotFoundException(message);
-        } else if(exception_id == BTPResponseCode.UNKNOWN_EXCEPTION) {
+        } else if (exception_id == BTPResponseCode.UNKNOWN_EXCEPTION) {
             throw new BTP.exceptions.BTPUnknownException(message);
         } else {
             throw new BTP.exceptions.BTPUnknownException(message);
         }
+    }
+
+    public int getBuildVersion() throws IOException {
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream("version.properties")));
+        int build = -1;
+        String line;
+        while (true) {
+            line = reader.readLine();
+            if (line.startsWith("BUILD=")) {
+                line = line.replace("BUILD=", "");
+                build = Integer.parseInt(line);
+                break;
+            }
+        }
+        return build;
     }
 }
