@@ -121,4 +121,9 @@ public abstract class BTPClient {
     public void setPeersClientBuild(int build) {
         this.peers_build = build;
     }
+    
+    public void sendMyClientBuild() throws IOException {
+        this.getPrintStream().write(this.getSystem().getBuildVersion());
+        this.getPrintStream().flush();
+    }
 }
