@@ -33,8 +33,12 @@ public abstract class BTPServerClient extends BTPClient implements Runnable {
         }
 
         while (true) {
+
             try {
-                this.handleSocketInput();
+                if (!this.handleSocketInput()) {
+                    // Client wants to shutdown so return
+                    return;
+                }
             } catch (Exception ex) {
                 // Something went wrong? Could be anything so log the error and then return
                 Logger.getLogger(BTPServerClient.class.getName()).log(Level.SEVERE, null, ex);
@@ -43,32 +47,50 @@ public abstract class BTPServerClient extends BTPClient implements Runnable {
         }
     }
 
+    public boolean handleSocketInput() throws IOException, Exception {
+        int opcode = this.getBufferedReader().read();
+        // Client has signalled that they wish to shutdown
+        if (opcode == BTPOperation.SHUTDOWN) {
+            return false;
+        }
+        // Pass the operation to the child
+        this.handleOperation(opcode);
+        return true;
+    }
+
     protected abstract void authenticate() throws Exception;
 
-    protected abstract void handleSocketInput() throws Exception;
+    protected abstract void handleOperation(int opcode) throws Exception;
 
     public synchronized BTPServer getServer() {
         return this.server;
     }
-    
+
     protected void sendExceptionResponseOverSocket(Exception exception) {
         int response_code;
         if (exception instanceof BTP.exceptions.BTPAccountNotFoundException) {
             response_code = BTPResponseCode.ACCOUNT_NOT_FOUND_EXCEPTION;
-        } else if(exception instanceof BTP.exceptions.BTPBankNotFoundException) {
+        } else if (exception instanceof BTP.exceptions.BTPBankNotFoundException) {
             response_code = BTPResponseCode.BANK_NOT_FOUND_EXCEPTION;
-        } else if(exception instanceof BTP.exceptions.BTPDataException) {
+        } else if (exception instanceof BTP.exceptions.BTPDataException) {
             response_code = BTPResponseCode.DATA_EXCEPTION;
-        } else if(exception instanceof BTP.exceptions.BTPInvalidAccountTypeException) {
+        } else if (exception instanceof BTP.exceptions.BTPInvalidAccountTypeException) {
             response_code = BTPResponseCode.INVALID_ACCOUNT_TYPE_EXCEPTION;
-        } else if(exception instanceof BTP.exceptions.BTPPermissionDeniedException) {
+        } else if (exception instanceof BTP.exceptions.BTPPermissionDeniedException) {
             response_code = BTPResponseCode.PERMISSION_DENIED_EXCEPTION;
         } else {
             response_code = BTPResponseCode.UNKNOWN_EXCEPTION;
         }
-        
+
         this.getPrintStream().write(response_code);
         this.getPrintStream().println(exception.getMessage());
         this.getPrintStream().flush();
+    }
+
+    @Override
+    public void shutdown() throws IOException {
+        if (this.getSocket() != null) {
+            this.getSocket().close();
+        }
     }
 }
