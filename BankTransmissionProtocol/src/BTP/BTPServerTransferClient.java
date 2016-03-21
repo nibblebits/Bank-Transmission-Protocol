@@ -22,15 +22,15 @@ public class BTPServerTransferClient extends BTPServerClient {
     public void run() {
         super.run();
     }
-    
+
     @Override
     protected void authenticate() {
-        
+
     }
-    
+
     @Override
-    protected void handleSocketInput() {
+    protected void handleOperation(int opcode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

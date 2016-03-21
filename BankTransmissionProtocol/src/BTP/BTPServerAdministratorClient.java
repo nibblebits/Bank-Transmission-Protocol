@@ -24,7 +24,7 @@ public class BTPServerAdministratorClient extends BTPServerEmployeeClient {
     }
     
     @Override
-    protected void handleSocketInput() {
+    protected void handleOperation(int opcode) {
          throw new UnsupportedOperationException("Not supported yet.");
     }
 }

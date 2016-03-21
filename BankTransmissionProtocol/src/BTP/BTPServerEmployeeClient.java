@@ -15,6 +15,7 @@ import java.net.Socket;
 public class BTPServerEmployeeClient extends BTPServerClient {
 
     private BTPEmployee employee;
+
     public BTPServerEmployeeClient(BTPSystem system, BTPServer server, Socket client) throws IOException {
         super(system, server, client);
         this.employee = null;
@@ -24,18 +25,17 @@ public class BTPServerEmployeeClient extends BTPServerClient {
     public void run() {
         super.run();
     }
-    
+
     @Override
     protected void authenticate() {
-        
+
     }
-    
+
     @Override
-    protected void handleSocketInput() {
+    protected void handleOperation(int opcode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-    
+
     public BTPEmployee getEmployee() {
         return this.employee;
     }
