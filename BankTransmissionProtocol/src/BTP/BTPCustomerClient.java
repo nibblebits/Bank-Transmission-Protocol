@@ -27,9 +27,7 @@ public class BTPCustomerClient extends BTPConnectorClient {
 
     public boolean login(int customer_id, String password) throws BTPPermissionDeniedException, BTPDataException, Exception {
         // Send the customer client authentication type.
-        this.getPrintStream().write(this.getSystem().getBuildVersion());
         this.getPrintStream().write(BTPClient.Customer);
-        this.setPeersClientBuild(this.getBufferedReader().read());
         this.getPrintStream().println(Integer.toString(customer_id));
         this.getPrintStream().println(password);
         this.getPrintStream().flush();
