@@ -18,8 +18,8 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
 
     private BTPServer server;
 
-    public BTPServerProtocolHelper(BTPSystem system, BufferedReader input, PrintStream output, Socket socket, BTPServer server) {
-        super(system, input, output, socket);
+    public BTPServerProtocolHelper(BTPSystem system, BufferedReader input, PrintStream output, BTPServer server) {
+        super(system, input, output);
         this.server = server;
     }
 
