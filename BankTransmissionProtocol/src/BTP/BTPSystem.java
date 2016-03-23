@@ -40,15 +40,13 @@ public class BTPSystem {
         return client;
     }
 
-    public synchronized BTPEmployeeClient newEmployeeClientFromLogin(int employee_id, String password) throws IOException, BTPPermissionDeniedException {
+    public synchronized BTPEmployeeClient newEmployeeClientFromLogin(int employee_id, String password)  throws IOException, BTPPermissionDeniedException, BTPDataException, Exception  {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
         BTPEmployeeClient client = new BTPEmployeeClient(this, socket);
         if (client.login(employee_id, password)) {
             return client;
         }
-
-        throw new BTPPermissionDeniedException("Failed to login as an employee permission denied.");
     }
 
     public synchronized BTPAdministratorClient newAdministrtorClientFromLogin(int admin_id, String password) throws IOException, BTPPermissionDeniedException {
