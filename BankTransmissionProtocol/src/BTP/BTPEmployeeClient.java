@@ -5,6 +5,8 @@
  */
 package BTP;
 
+import BTP.exceptions.BTPDataException;
+import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -18,9 +20,17 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         super(system, socket);
     }
     
-    public boolean login(int employee_id, String password) {
-        
-        return true;
+    public boolean login(int employee_id, String password) throws IOException, BTPPermissionDeniedException, BTPDataException, Exception {
+        this.getPrintStream().println(Integer.toString(employee_id));
+        this.getPrintStream().println(password);
+        int response = this.getBufferedReader().read();
+        if (response == BTPResponseCode.ALL_OK) {
+            return true;
+        } else {
+            String message = this.getBufferedReader().readLine();
+            this.getSystem().throwExceptionById(response, message);
+        }
+        return false;
     }
     
     public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) {
