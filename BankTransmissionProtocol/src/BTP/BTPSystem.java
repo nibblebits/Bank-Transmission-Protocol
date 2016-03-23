@@ -47,6 +47,7 @@ public class BTPSystem {
         if (client.login(employee_id, password)) {
             return client;
         }
+        return null;
     }
 
     public synchronized BTPAdministratorClient newAdministrtorClientFromLogin(int admin_id, String password) throws IOException, BTPPermissionDeniedException {
