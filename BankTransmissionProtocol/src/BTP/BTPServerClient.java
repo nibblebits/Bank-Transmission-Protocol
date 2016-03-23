@@ -88,6 +88,14 @@ public abstract class BTPServerClient extends BTPClient implements Runnable {
     }
 
     @Override
+    protected void exchangeClientInformation() throws IOException {
+        int peer_build = this.getBufferedReader().read();
+        this.setPeersClientBuild(peer_build);
+        this.getPrintStream().write(this.getSystem().getBuildVersion());
+        this.getPrintStream().flush();
+    }
+
+    @Override
     public void shutdown() throws IOException {
         if (this.getSocket() != null) {
             this.getSocket().close();
