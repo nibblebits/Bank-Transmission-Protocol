@@ -6,6 +6,7 @@
 package BTP;
 
 import java.net.Socket;
+import java.util.Date;
 
 /**
  *
@@ -17,4 +18,15 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
         super(system, socket);
     }
     
+    public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) {
+        
+    }
+    
+    public double getBalance(BTPAccount account) {
+        return 0;
+    }
+    
+    public BTPTransaction[] getTransactions(BTPAccount account, Date from, Date to) {
+        return null;
+    }
 }
