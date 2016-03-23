@@ -27,8 +27,16 @@ public class BTPServerEmployeeClient extends BTPServerClient {
     }
 
     @Override
-    protected void authenticate() {
-
+    protected void authenticate() throws Exception {
+        int employee_id = Integer.parseInt(this.getBufferedReader().readLine());
+        String password = this.getBufferedReader().readLine();
+        try {
+            if (this.getServer().getEventHandler().employeeLogin(new EmployeeLoginEvent(this, employee_id, password))) {
+                this.setAuthenticated(true);
+            }
+        } catch (Exception ex) {
+            this.sendExceptionResponseOverSocket(ex);
+        }
     }
 
     @Override
