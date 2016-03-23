@@ -5,6 +5,8 @@
  */
 package BTP;
 
+import java.io.BufferedReader;
+import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Date;
 
@@ -16,10 +18,11 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
 
     private BTPServer server;
 
-    public BTPServerProtocolHelper(BTPSystem system, Socket socket, BTPServer server) {
-        super(system, socket);
+    public BTPServerProtocolHelper(BTPSystem system, BufferedReader input, PrintStream output, Socket socket, BTPServer server) {
+        super(system, input, output, socket);
         this.server = server;
     }
+
 
     public void handleTransferEnquiry(BTPAccount account_from, BTPAccount account_to, double amount) {
 
