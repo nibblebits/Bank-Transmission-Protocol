@@ -22,12 +22,9 @@ public class BTPCustomerClient extends BTPConnectorClient {
 
     public BTPCustomerClient(BTPSystem system, Socket socket) throws IOException {
         super(system, socket);
-
     }
 
     public boolean login(int customer_id, String password) throws BTPPermissionDeniedException, BTPDataException, Exception {
-        // Send the customer client authentication type.
-        this.getPrintStream().write(BTPClient.Customer);
         this.getPrintStream().println(Integer.toString(customer_id));
         this.getPrintStream().println(password);
         this.getPrintStream().flush();
