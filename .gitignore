@@ -11,3 +11,4 @@
 *.class
 *.properties
 *.~vsd
+/BankTransmissionProtocol/dist/
