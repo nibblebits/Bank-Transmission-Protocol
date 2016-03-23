@@ -5,17 +5,10 @@
  */
 package BTP;
 
-import BTP.exceptions.BTPAccountNotFoundException;
-import BTP.exceptions.BTPBankNotFoundException;
-import BTP.exceptions.BTPDataException;
-import BTP.exceptions.BTPInvalidAccountTypeException;
-import BTP.exceptions.BTPPermissionDeniedException;
-import BTP.exceptions.BTPUnknownException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
