@@ -11,6 +11,7 @@ package BTP;
  */
 public interface BTPServerEventHandler {
     public void customerLogin(CustomerLoginEvent event) throws BTP.exceptions.BTPPermissionDeniedException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPAccountNotFoundException, Exception;
+    public void employeeLogin(EmployeeLoginEvent event) throws BTP.exceptions.BTPPermissionDeniedException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPAccountNotFoundException, Exception;
     public void createBankAccount(CreateNewBankAccountEvent event) throws BTP.exceptions.BTPPermissionDeniedException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPAccountNotFoundException, BTP.exceptions.BTPInvalidAccountTypeException, Exception;
     public void createCustomer(CreateCustomerEvent event) throws BTP.exceptions.BTPPermissionDeniedException, BTP.exceptions.BTPDataException, Exception;
     public void setDailyOverdrawnCharge(SetDailyOverdrawnChargeEvent event) throws BTP.exceptions.BTPPermissionDeniedException, BTP.exceptions.BTPBankNotFoundException, BTP.exceptions.BTPDataException, BTP.exceptions.BTPInvalidAccountTypeException, Exception;
