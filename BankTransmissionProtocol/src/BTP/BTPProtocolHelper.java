@@ -19,7 +19,7 @@ public abstract class BTPProtocolHelper {
     private BTPSystem system;
     private BufferedReader input;
     private PrintStream output;
-    public BTPProtocolHelper(BTPSystem system, BufferedReader input, PrintStream output, Socket socket) {
+    public BTPProtocolHelper(BTPSystem system, BufferedReader input, PrintStream output) {
         this.system = system;
         this.input = input;
         this.output = output;

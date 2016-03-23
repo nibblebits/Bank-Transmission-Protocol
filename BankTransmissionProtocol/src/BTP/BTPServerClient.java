@@ -17,10 +17,13 @@ import java.util.logging.Logger;
 public abstract class BTPServerClient extends BTPClient implements Runnable {
 
     private final BTPServer server;
+    private BTPServerProtocolHelper protocol_helper;
 
     public BTPServerClient(BTPSystem system, BTPServer server, Socket client) throws IOException {
         super(system, client);
         this.server = server;
+        this.protocol_helper = new BTPServerProtocolHelper(system,
+                this.getBufferedReader(), this.getPrintStream(), server);
     }
 
     @Override
@@ -100,5 +103,9 @@ public abstract class BTPServerClient extends BTPClient implements Runnable {
         if (this.getSocket() != null) {
             this.getSocket().close();
         }
+    }
+    
+    public BTPServerProtocolHelper getProtocolHelper() {
+        return this.protocol_helper;
     }
 }

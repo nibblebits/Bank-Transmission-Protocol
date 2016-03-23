@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Date;
 
-
 /**
  *
  * @author Daniel
@@ -56,11 +55,11 @@ public class BTPServerCustomerClient extends BTPServerClient {
     }
 
     @Override
-   protected void handleOperation(int opcode) throws Exception{
+    protected void handleOperation(int opcode) throws Exception {
         switch (opcode) {
             case BTPOperation.TRANSFER: {
-                BTPAccount account_from = this.readAccountFromSocket();
-                BTPAccount account_to = this.readAccountFromSocket();
+                BTPAccount account_from = this.getProtocolHelper().readAccountFromSocket();
+                BTPAccount account_to = this.getProtocolHelper().readAccountFromSocket();
 
                 double amount = Double.parseDouble(this.getBufferedReader().readLine());
                 // Little bit of security we don't want people sending money to themselves ;)
@@ -103,7 +102,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                         this.getPrintStream().write(bank_accounts.length);
                         for (int i = 0; i < bank_accounts.length; i++) {
                             BTPAccount account = bank_accounts[i];
-                            this.writeAccountToSocket(account);
+                            this.getProtocolHelper().writeAccountToSocket(account);
                         }
                     }
                 } catch (Exception ex) {
@@ -148,7 +147,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                     this.getPrintStream().write(BTPResponseCode.ALL_OK);
                     this.getPrintStream().write(transactions.length);
                     for (BTPTransaction transaction : transactions) {
-                        this.writeTransactionToSocket(transaction);
+                        this.getProtocolHelper().writeTransactionToSocket(transaction);
                     }
                 } catch (Exception ex) {
                     this.sendExceptionResponseOverSocket(ex);

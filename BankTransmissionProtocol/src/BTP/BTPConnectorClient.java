@@ -14,8 +14,10 @@ import java.net.Socket;
  */
 public abstract class BTPConnectorClient extends BTPClient {
 
+    private BTPClientProtocolHelper protocol_helper;
     public BTPConnectorClient(BTPSystem system, Socket socket) throws IOException {
         super(system, socket);
+        this.protocol_helper = new BTPClientProtocolHelper(system, this.getBufferedReader(), this.getPrintStream());
     }
 
     @Override
@@ -44,4 +46,7 @@ public abstract class BTPConnectorClient extends BTPClient {
         this.setPeersClientBuild(peer_build);
     }
 
+    public BTPClientProtocolHelper getProtocolHelper() {
+        return this.protocol_helper;
+    }
 }
