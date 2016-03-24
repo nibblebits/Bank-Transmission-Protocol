@@ -8,6 +8,8 @@
 /BankClient/dist/
 /BankServer/dist/
 
+version.properties
+
 *.class
 *.properties
 *.~vsd
