@@ -13,3 +13,4 @@ version.properties
 *.class
 *.properties
 *.~vsd
+*.db
