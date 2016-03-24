@@ -16,8 +16,9 @@ public class BTPAccount {
     private final int account_no;
     private final String sort_code;
     private final BTPKeyContainer extra;
+    private final BTPAccountType account_type;
 
-    public BTPAccount(int customer_id, int account_no, String sort_code, BTPKeyContainer extra) {
+    public BTPAccount(int customer_id, int account_no, String sort_code, BTPAccountType account_type, BTPKeyContainer extra) {
         this.customer_id = customer_id;
         this.account_no = account_no;
         this.sort_code = sort_code;
@@ -26,9 +27,15 @@ public class BTPAccount {
         } else {
             this.extra = new BTPKeyContainer();
         }
+
+        if (account_type != null) {
+            this.account_type = account_type;
+        } else {
+            this.account_type = new BTPAccountType(-1, "Not shown");
+        }
     }
 
-    public BTPAccount(int account_no, String sort_code, BTPKeyContainer extra) {
+    public BTPAccount(int account_no, String sort_code, BTPAccountType account_type, BTPKeyContainer extra) {
         this.customer_id = -1;
         this.account_no = account_no;
         this.sort_code = sort_code;
@@ -36,6 +43,12 @@ public class BTPAccount {
             this.extra = extra;
         } else {
             this.extra = new BTPKeyContainer();
+        }
+
+        if (account_type != null) {
+            this.account_type = account_type;
+        } else {
+            this.account_type = new BTPAccountType(-1, "Not shown");
         }
     }
 
@@ -53,5 +66,9 @@ public class BTPAccount {
 
     public BTPKeyContainer getExtraDetail() {
         return this.extra;
+    }
+
+    public BTPAccountType getAccountType() {
+        return this.account_type;
     }
 }
