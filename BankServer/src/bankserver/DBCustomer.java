@@ -34,11 +34,12 @@ public class DBCustomer extends BTPUser {
 
     public DBAccount getBankAccount(int account_no) throws SQLException, BTPPermissionDeniedException {
         DBAccount account = this.db.getBankAccount(account_no);
-        if (account.getCustomerId() != this.getId()) {
-            // This is not the bank account of this customer!
-            throw new BTP.exceptions.BTPPermissionDeniedException("You are not the account holder of this bank account!");
+        if (account != null) {
+            if (account.getCustomerId() != this.getId()) {
+                // This is not the bank account of this customer!
+                throw new BTP.exceptions.BTPPermissionDeniedException("You are not the account holder of this bank account!");
+            }
         }
-        
         return account;
     }
 

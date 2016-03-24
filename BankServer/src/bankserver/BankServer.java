@@ -6,6 +6,7 @@
 package bankserver;
 
 import BTP.*;
+import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
@@ -166,6 +167,11 @@ public class BankServer implements BTPServerEventHandler {
         transactions[0] = new BTPTransaction(new BTPAccount(-1, 123456789, "33-22-11", null), new BTPAccount(-1, 55555554, "30-12-18", null), 42.87);
         transactions[1] = new BTPTransaction(new BTPAccount(-1, 123456789, "33-22-11", null), new BTPAccount(-1, 55555554, "30-12-18", null), 12.18);
         return transactions;
+    }
+
+    @Override
+    public void employeeLogin(EmployeeLoginEvent event) throws BTPPermissionDeniedException, BTPDataException, BTPAccountNotFoundException, Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
