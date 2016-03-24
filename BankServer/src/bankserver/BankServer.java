@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +39,8 @@ public class BankServer implements BTPServerEventHandler {
         database = new Database(this);
         database.setup();
         this_bank = new BTPBank("22-33-44", "dmwkei38823r238r23amn3b4583j", "127.0.0.1", 4444);
+
+        System.out.println((new Date()).getTime());
 
         system = new BTPSystem(this_bank);
         BTPServer server = system.newServer(this);
@@ -104,13 +107,8 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized BTPAccount[] getBankAccountsOfCustomer(GetBankAccountsOfCustomerEvent event) {
-        BTPAccount[] accounts = new BTPAccount[2];
-        BTPKeyContainer extra = new BTPKeyContainer();
-        extra.addKey(new BTPKey("account_type", "Student"));
-        extra.addKey(new BTPKey("graduation", "2017"));
-        accounts[0] = new BTPAccount(1, 123456789, "22-33-44", null);
-        accounts[1] = new BTPAccount(1, 222228362, "22-33-44", extra);
+    public synchronized BTPAccount[] getBankAccountsOfCustomer(GetBankAccountsOfCustomerEvent event) throws SQLException {
+        DBAccount[] accounts = this.getDatabase().getBankAccounts(event.getCustomerId());
         return accounts;
     }
 
@@ -125,14 +123,31 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized void transfer(LocalTransferEvent event) throws BTPPermissionDeniedException {
-        if (event.getAccountToTransferFrom().getCustomerId() == 123456789) {
-            // All good!
-            if (event.getAccountToTransferFrom().getAccountNumber() == 58473732) {
-                return;
+    public synchronized void transfer(LocalTransferEvent event) throws BTPPermissionDeniedException, BTPDataException, BTPAccountNotFoundException {
+        BTPAccount account_from = event.getAccountToTransferFrom();
+        BTPAccount account_to = event.getAccountToTransferTo();
+        try {
+            DBAccount account_from_db = this.getDatabase().getBankAccount(account_from.getAccountNumber());
+            DBAccount account_to_db = this.getDatabase().getBankAccount(account_to.getAccountNumber());
+            if (account_from_db == null) {
+                throw new BTP.exceptions.BTPAccountNotFoundException("Your bank account could not be found? has "
+                        + "it been deleted recently?");
             }
+            if (account_to_db == null) {
+                throw new BTP.exceptions.BTPAccountNotFoundException("The recipient account could not be found.");
+            }
+
+            TransferAgent transferAgent = new TransferAgent(this.getDatabase());
+            try {
+                transferAgent.transfer(account_from_db, account_to_db, event.getAmountToTransfer());
+            } catch (SQLException ex) {
+                Logger.getLogger(SQLException.class.getName()).log(Level.SEVERE, null, ex);
+                throw new BTP.exceptions.BTPDataException("A database problem occured");
+            }
+
+        } catch (SQLException ex) {
+            throw new BTP.exceptions.BTPDataException("A problem occured querying the database");
         }
-        throw new BTP.exceptions.BTPPermissionDeniedException("Transfer failed, permission denied");
     }
 
     @Override
@@ -152,8 +167,6 @@ public class BankServer implements BTPServerEventHandler {
             throw new BTP.exceptions.BTPDataException("The bank account " + bank_account_to_view.getAccountNumber() + " does not exist");
         }
         return c_account.getBalance();
-
-        // throw new BTP.exceptions.BTPPermissionDeniedException("This is not your bank account! This incident will be reported. ");
     }
 
     @Override
@@ -162,11 +175,20 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized BTPTransaction[] getTransactionsOfAccount(GetTransactionsOfBankAccountEvent event) {
-        BTPTransaction[] transactions = new BTPTransaction[2];
-        transactions[0] = new BTPTransaction(new BTPAccount(-1, 123456789, "33-22-11", null), new BTPAccount(-1, 55555554, "30-12-18", null), 42.87);
-        transactions[1] = new BTPTransaction(new BTPAccount(-1, 123456789, "33-22-11", null), new BTPAccount(-1, 55555554, "30-12-18", null), 12.18);
-        return transactions;
+    public synchronized BTPTransaction[] getTransactionsOfAccount(GetTransactionsOfBankAccountEvent event) throws BTPDataException, BTPPermissionDeniedException {
+        BTPClient client = event.getClient();
+        if (client instanceof BTPServerCustomerClient) {
+            try {
+                BTPTransaction[] transactions = this.getDatabase().getTransactions(
+                        event.getAccount(),
+                        event.getDateFrom(),
+                        event.getDateTo());
+                return transactions;
+            } catch (SQLException ex) {
+                throw new BTP.exceptions.BTPDataException("An issue occured while querying the database");
+            }
+        }
+        throw new BTP.exceptions.BTPPermissionDeniedException("Client type is not allowed to view transactions");
     }
 
     @Override

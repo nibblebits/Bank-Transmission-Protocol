@@ -42,5 +42,9 @@ public class DBCustomer extends BTPUser {
         }
         return account;
     }
+    
+    public DBAccount[] getBankAccounts() throws SQLException {
+        return this.db.getBankAccounts(this.getId());
+    }
 
 }

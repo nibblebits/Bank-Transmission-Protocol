@@ -6,6 +6,7 @@
 package bankserver;
 
 import BTP.BTPAccount;
+import BTP.BTPAccountType;
 import BTP.BTPKeyContainer;
 
 /**
@@ -15,12 +16,21 @@ import BTP.BTPKeyContainer;
 class DBAccount extends BTPAccount {
 
     private double balance;
-    public DBAccount(int customer_id, int account_no, String sort_code, BTPKeyContainer extra, double balance) {
-        super(customer_id, account_no, sort_code, extra);
+    public DBAccount(int customer_id, int account_no, String sort_code, BTPAccountType account_type, BTPKeyContainer extra, double balance) {
+        super(customer_id, account_no, sort_code, account_type, extra);
         this.balance = balance;
     }
     
     public double getBalance() {
         return this.balance;
     }
+    
+    public void withdraw(double amount) {
+        this.balance -= amount;
+    }
+    
+    public void deposit(double amount) {
+        this.balance += amount;
+    }
+    
 }
