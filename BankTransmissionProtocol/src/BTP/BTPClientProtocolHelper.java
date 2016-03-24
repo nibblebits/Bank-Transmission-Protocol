@@ -20,8 +20,8 @@ import java.util.Date;
  */
 public class BTPClientProtocolHelper extends BTPProtocolHelper {
 
-    public BTPClientProtocolHelper(BTPSystem system, BufferedReader input, PrintStream output) {
-        super(system, input, output);
+    public BTPClientProtocolHelper(BTPSystem system, BTPClient client, BufferedReader input, PrintStream output) {
+        super(system, client, input, output);
     }
 
     public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) throws BTPPermissionDeniedException, BTPDataException, Exception {

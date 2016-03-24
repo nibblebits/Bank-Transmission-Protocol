@@ -34,7 +34,7 @@ public class BTPServerEmployeeClient extends BTPServerClient {
             this.getServer().getEventHandler().employeeLogin(new EmployeeLoginEvent(this, employee_id, password));
             this.setAuthenticated(true);
         } catch (Exception ex) {
-            this.sendExceptionResponseOverSocket(ex);
+            this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
         }
     }
 

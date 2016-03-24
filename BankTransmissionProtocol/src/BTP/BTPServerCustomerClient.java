@@ -47,7 +47,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
             this.customer = new BTPCustomer(customer_id, null, null, null, null, null);
         } catch (Exception ex) {
             // Send the exception response to the client as their was a problem
-            this.sendExceptionResponseOverSocket(ex);
+            this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
         }
 
         // Flush the print stream
@@ -62,31 +62,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 BTPAccount account_to = this.getProtocolHelper().readAccountFromSocket();
 
                 double amount = Double.parseDouble(this.getBufferedReader().readLine());
-                // Little bit of security we don't want people sending money to themselves ;)
-                if (account_from.getAccountNumber() == account_to.getAccountNumber()
-                        && account_from.getSortCode().equals(account_to.getSortCode())) {
-                    this.sendExceptionResponseOverSocket(
-                            new BTP.exceptions.BTPPermissionDeniedException("You may not send money to yourself!")
-                    );
-                    return;
-                }
-                if (account_to.getSortCode().equals(this.getServer().getSystem().getOurBank().getSortcode())) {
-                    try {
-                        this.getServer().getEventHandler().transfer(new LocalTransferEvent(this, account_from, account_to, amount));
-                        this.getPrintStream().write(BTPResponseCode.ALL_OK);
-                    } catch (Exception ex) {
-                        // Send an exception response to the client as their was an error
-                        this.sendExceptionResponseOverSocket(ex);
-                    }
-                } else {
-                    try {
-                        this.getServer().getEventHandler().transfer(new RemoteTransferEvent(this, account_from, account_to, amount));
-                        this.getPrintStream().write(BTPResponseCode.ALL_OK);
-                    } catch (Exception ex) {
-                        // Send an exception response to the client as their was an error
-                        this.sendExceptionResponseOverSocket(ex);
-                    }
-                }
+                this.getProtocolHelper().handleTransferEnquiry(account_from, account_to, amount);
             }
             break;
 
@@ -107,7 +83,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                     }
                 } catch (Exception ex) {
                     // Send an exception response to the client as their was an error
-                    this.sendExceptionResponseOverSocket(ex);
+                    this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
                 }
             }
             break;
@@ -115,15 +91,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
             case BTPOperation.GET_BALANCE: {
                 int account_no = Integer.parseInt(this.getBufferedReader().readLine());
                 BTPAccount account = new BTPAccount(this.getCustomer().getId(), account_no, this.getSystem().getOurBank().getSortcode(), null);
-
-                try {
-                    double balance = this.getServer().getEventHandler().getBalance(new BalanceEnquiryEvent(this, account));
-                    this.getPrintStream().write(BTPResponseCode.ALL_OK);
-                    this.getPrintStream().println(Double.toString(balance));
-                } catch (Exception ex) {
-                    // Send an exception response to the client as their was an error
-                    this.sendExceptionResponseOverSocket(ex);
-                }
+                this.getProtocolHelper().handleBalanceEnquiry(account);
             }
             break;
 
@@ -131,6 +99,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 BTPAccount account;
                 Date date_from = new Date();
                 Date date_to = new Date();
+                
                 account = new BTPAccount(
                         this.getCustomer().getId(),
                         Integer.parseInt(this.getBufferedReader().readLine()),
@@ -140,19 +109,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 date_from.setTime(Long.valueOf(this.getBufferedReader().readLine()));
                 date_to.setTime(Long.valueOf(this.getBufferedReader().readLine()));
 
-                try {
-                    BTPTransaction[] transactions = this.getServer().getEventHandler().getTransactionsOfAccount(
-                            new GetTransactionsOfBankAccountEvent(this, account, date_from, date_to)
-                    );
-                    this.getPrintStream().write(BTPResponseCode.ALL_OK);
-                    this.getPrintStream().write(transactions.length);
-                    for (BTPTransaction transaction : transactions) {
-                        this.getProtocolHelper().writeTransactionToSocket(transaction);
-                    }
-                } catch (Exception ex) {
-                    this.sendExceptionResponseOverSocket(ex);
-                }
-                this.getPrintStream().flush();
+                this.getProtocolHelper().handleTransactionsEnquiry(account, date_from, date_to);
             }
             break;
         }

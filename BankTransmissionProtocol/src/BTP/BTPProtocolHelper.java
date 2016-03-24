@@ -19,25 +19,27 @@ public abstract class BTPProtocolHelper {
     private BTPSystem system;
     private BufferedReader input;
     private PrintStream output;
-    public BTPProtocolHelper(BTPSystem system, BufferedReader input, PrintStream output) {
+    private BTPClient client;
+    public BTPProtocolHelper(BTPSystem system, BTPClient client, BufferedReader input, PrintStream output) {
         this.system = system;
         this.input = input;
         this.output = output;
+        this.client = client;
     }
     
-    public BTPSystem getSystem() {
+    protected BTPSystem getSystem() {
         return this.system;
     }
     
-    public BufferedReader getBufferedReader() {
+    protected BufferedReader getBufferedReader() {
         return this.input;
     }
     
-    public PrintStream getPrintStream() {
+    protected PrintStream getPrintStream() {
         return this.output;
     }
     
-    protected BTPAccount readAccountFromSocket() throws IOException {
+    public BTPAccount readAccountFromSocket() throws IOException {
         int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
         int account_no = Integer.parseInt(this.getBufferedReader().readLine());
         String sort_code = this.getBufferedReader().readLine();
@@ -54,7 +56,7 @@ public abstract class BTPProtocolHelper {
         return new BTPAccount(customer_id, account_no, sort_code, extra);
     }
 
-    protected void writeAccountToSocket(BTPAccount account) {
+    public void writeAccountToSocket(BTPAccount account) {
         this.getPrintStream().println(account.getCustomerId());
         this.getPrintStream().println(account.getAccountNumber());
         this.getPrintStream().println(account.getSortCode());
@@ -68,17 +70,21 @@ public abstract class BTPProtocolHelper {
         this.getPrintStream().flush();
     }
 
-    protected void writeTransactionToSocket(BTPTransaction transaction) {
+    public void writeTransactionToSocket(BTPTransaction transaction) {
         this.writeAccountToSocket(transaction.getSenderAccount());
         this.writeAccountToSocket(transaction.getReceiverAccount());
         this.getPrintStream().println(transaction.getAmountTransferred());
         this.getPrintStream().flush();
     }
 
-    protected BTPTransaction readTransactionFromSocket() throws IOException {
+    public BTPTransaction readTransactionFromSocket() throws IOException {
         return new BTPTransaction(
                 this.readAccountFromSocket(),
                 this.readAccountFromSocket(),
                 Double.valueOf(this.getBufferedReader().readLine()));
+    }
+    
+    protected BTPClient getClient() {
+        return this.client;
     }
 }
