@@ -42,40 +42,55 @@ public abstract class BTPProtocolHelper {
         return this.output;
     }
 
-    public BTPAccount readAccountFromSocket() throws IOException {
+    public BTPAccount readAccountFromSocket(boolean bare_minimum) throws IOException {
+        BTPAccountType account_type = null;
+        BTPKeyContainer extra = null;
+
         int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
         int account_no = Integer.parseInt(this.getBufferedReader().readLine());
         String sort_code = this.getBufferedReader().readLine();
-        int total_options = this.getBufferedReader().read();
-        BTPKeyContainer extra = new BTPKeyContainer();
-        for (int b = 0; b < total_options; b++) {
-            BTPKey key = new BTPKey(
-                    this.getBufferedReader().readLine(),
-                    this.getBufferedReader().readLine()
-            );
-            extra.addKey(key);
+
+        if (!bare_minimum) {
+            int total_options = this.getBufferedReader().read();
+            extra = new BTPKeyContainer();
+            for (int b = 0; b < total_options; b++) {
+                BTPKey key = new BTPKey(
+                        this.getBufferedReader().readLine(),
+                        this.getBufferedReader().readLine()
+                );
+                extra.addKey(key);
+            }
+
+            account_type = new BTPAccountType(this.getBufferedReader().read(),
+                    this.getBufferedReader().readLine());
         }
-
-        BTPAccountType account_type = new BTPAccountType(this.getBufferedReader().read(),
-                this.getBufferedReader().readLine());
-
         return new BTPAccount(customer_id, account_no, sort_code, account_type, extra);
     }
 
-    public void writeAccountToSocket(BTPAccount account) {
+    public BTPAccount readAccountFromSocket() throws IOException {
+        return this.readAccountFromSocket(false);
+    }
+
+    public void writeAccountToSocket(BTPAccount account, boolean bare_minimum) {
         this.getPrintStream().println(account.getCustomerId());
         this.getPrintStream().println(account.getAccountNumber());
         this.getPrintStream().println(account.getSortCode());
-        this.getPrintStream().write(account.getExtraDetail().getTotalKeys());
-        for (int i = 0; i < account.getExtraDetail().getTotalKeys(); i++) {
-            BTPKey key = account.getExtraDetail().getKey(i);
-            this.getPrintStream().println(key.getIndexName());
-            this.getPrintStream().println(key.getValue());
-        }
+        if (!bare_minimum) {
+            this.getPrintStream().write(account.getExtraDetail().getTotalKeys());
+            for (int i = 0; i < account.getExtraDetail().getTotalKeys(); i++) {
+                BTPKey key = account.getExtraDetail().getKey(i);
+                this.getPrintStream().println(key.getIndexName());
+                this.getPrintStream().println(key.getValue());
+            }
 
-        this.getPrintStream().write(account.getAccountType().getId());
-        this.getPrintStream().println(account.getAccountType().getName());
+            this.getPrintStream().write(account.getAccountType().getId());
+            this.getPrintStream().println(account.getAccountType().getName());
+        }
         this.getPrintStream().flush();
+    }
+
+    public void writeAccountToSocket(BTPAccount account) {
+        this.writeAccountToSocket(account, false);
     }
 
     public void writeTransactionToSocket(BTPTransaction transaction) {
