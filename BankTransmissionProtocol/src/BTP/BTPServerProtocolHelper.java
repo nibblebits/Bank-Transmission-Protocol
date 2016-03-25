@@ -30,7 +30,7 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
         if (account_from.getAccountNumber() == account_to.getAccountNumber()
                 && account_from.getSortCode().equals(account_to.getSortCode())) {
             this.sendExceptionResponseOverSocket(
-                    new BTP.exceptions.BTPPermissionDeniedException("You may not send money to yourself!")
+                    new BTP.exceptions.BTPPermissionDeniedException("You may not send money to the same account your sending from.")
             );
             return;
         }
