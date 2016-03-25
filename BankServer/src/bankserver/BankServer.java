@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 public class BankServer implements BTPServerEventHandler {
 
     // The central bank account for this bank.
-    private static final int CENTRAL_BANK_ACCOUNT_NO = 55555555;
+    public static final int CENTRAL_BANK_ACCOUNT_NO = 55555555;
 
     public static final int CURRENT_ACCOUNT = 1;
     public static final int SAVINGS_ACCOUNT = 2;
@@ -85,12 +85,12 @@ public class BankServer implements BTPServerEventHandler {
                             // Take off the selected percentage based on the account type they are part of
                             double balance = account.getBalance();
                             double to_remove = Math.abs(balance) / 100 * account.getBalancePercentageChange();
-                            TransferAgent agent = new TransferAgent(this.getDatabase());
+                  
                             try {
                                 try {
-                                    agent.transfer(account,
-                                            this.getDatabase().getBankAccount(BankServer.CENTRAL_BANK_ACCOUNT_NO),
-                                            to_remove);
+                                    // Withdraw the money from the account
+                                    account.withdraw(to_remove);
+                                    this.getDatabase().updateAccount(account);
                                 } catch (BTPPermissionDeniedException ex) {
                                     Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
                                 }
@@ -206,6 +206,15 @@ public class BankServer implements BTPServerEventHandler {
         return accounts;
     }
 
+        @Override
+    public synchronized BTPAccount getBankAccount(GetBankAccountEvent event) throws BTPPermissionDeniedException, BTPDataException, BTPDataException, BTPAccountNotFoundException {
+        try {
+            return this.getDatabase().getBankAccount(event.getAccountNo());
+        } catch (SQLException ex) {
+            Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+            throw new BTP.exceptions.BTPDataException("Database error.");
+        }
+    }
     @Override
     public synchronized void setBankAccountsOverdraftLimit(SetBankAccountOverdraftLimitEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -281,7 +290,7 @@ public class BankServer implements BTPServerEventHandler {
 
     @Override
     public void employeeLogin(EmployeeLoginEvent event) throws BTPPermissionDeniedException, BTPDataException, BTPAccountNotFoundException, Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
 }
