@@ -25,6 +25,7 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         this.getPrintStream().println(password);
         int response = this.getBufferedReader().read();
         if (response == BTPResponseCode.ALL_OK) {
+            this.setAuthenticated(true);
             return true;
         } else {
             String message = this.getBufferedReader().readLine();
