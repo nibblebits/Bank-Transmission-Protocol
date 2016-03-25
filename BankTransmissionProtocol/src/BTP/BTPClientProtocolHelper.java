@@ -26,8 +26,8 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
 
     public void transfer(BTPAccount account_from, BTPAccount account_to, double amount) throws BTPPermissionDeniedException, BTPDataException, Exception {
         this.getPrintStream().write(BTPOperation.TRANSFER);
-        this.writeAccountToSocket(account_from);
-        this.writeAccountToSocket(account_to);
+        this.getPrintStream().println(Integer.toString(account_from.getAccountNumber()));
+        this.writeAccountToSocket(account_to, true);
         this.getPrintStream().println(Double.toString(amount));
         int response = this.getBufferedReader().read();
         if (response != BTPResponseCode.ALL_OK) {
