@@ -5,6 +5,8 @@
  */
 package BTP;
 
+import BTP.exceptions.BTPAccountNotFoundException;
+import BTP.exceptions.BTPDataException;
 import java.io.BufferedReader;
 import java.io.PrintStream;
 import java.net.Socket;
@@ -54,6 +56,9 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
     public double handleBalanceEnquiry(BTPAccount account) {
         double balance = -1;
         try {
+            if (account == null) {
+                throw new BTP.exceptions.BTPDataException("No account was specified to query a balance from.");
+            }
             balance = server.getEventHandler().getBalance(new BalanceEnquiryEvent(this.getClient(), account));
             this.getPrintStream().write(BTPResponseCode.ALL_OK);
             this.getPrintStream().println(Double.toString(balance));
