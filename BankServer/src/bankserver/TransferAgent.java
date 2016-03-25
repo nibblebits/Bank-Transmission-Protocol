@@ -7,6 +7,7 @@ package bankserver;
 
 import BTP.BTPAccount;
 import BTP.BTPTransaction;
+import BTP.exceptions.BTPPermissionDeniedException;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -22,7 +23,7 @@ public class TransferAgent {
         this.database = database;
     }
 
-    public void transfer(DBAccount account_from, DBAccount account_to, double amount) throws SQLException {
+    public void transfer(DBAccount account_from, DBAccount account_to, double amount) throws SQLException, BTPPermissionDeniedException {
         account_from.withdraw(amount);
         account_to.deposit(amount);
         this.database.updateAccount(account_from);

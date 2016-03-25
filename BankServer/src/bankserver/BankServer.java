@@ -10,10 +10,14 @@ import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,9 +27,25 @@ import java.util.logging.Logger;
  */
 public class BankServer implements BTPServerEventHandler {
 
+    // The central bank account for this bank.
+    private static final int CENTRAL_BANK_ACCOUNT_NO = 55555555;
+
+    public static final int CURRENT_ACCOUNT = 1;
+    public static final int SAVINGS_ACCOUNT = 2;
+    public static final int STUDENT_OVERDRAFT_ACCOUNT = 3;
+    public static final int ELDERLY_SAVINGS_ACCOUNT = 4;
+    public static final int UNDER_18S_ACCOUNT = 5;
+    public static final int SUPER_SAVERS_ACCOUNT = 6;
+    public static final int FEE_FREE_ACCOUNT = 7;
+    public static final int CASUALLY_OVERDRAWN_ACCOUNT = 8;
+
     private Database database = null;
     private BTPBank this_bank = null;
     private BTPSystem system = null;
+    private long last_overdrawn_check = 0;
+    private long last_interest_check = 0;
+
+    private DecimalFormat decimal_format;
 
     public BTPSystem getSystem() {
         return this.system;
@@ -39,8 +59,7 @@ public class BankServer implements BTPServerEventHandler {
         database = new Database(this);
         database.setup();
         this_bank = new BTPBank("22-33-44", "dmwkei38823r238r23amn3b4583j", "127.0.0.1", 4444);
-
-        System.out.println((new Date()).getTime());
+        this.decimal_format = new DecimalFormat("£##.##");
 
         system = new BTPSystem(this_bank);
         BTPServer server = system.newServer(this);
@@ -52,17 +71,92 @@ public class BankServer implements BTPServerEventHandler {
         }
     }
 
-    public void run() {
+    public void process() {
+        // If their has been 24 hours since the last overdrawn check..
+        if ((System.currentTimeMillis() - last_overdrawn_check) > 1440000) {
+            System.out.println("Overdrawn Check Initiaited");
+            try {
+                /* Get all the accounts in the database 
+                 * and charge any that are overdrawn.*/
+                DBAccount[] accounts = this.getDatabase().getAllBankAccounts();
+                for (DBAccount account : accounts) {
+                    if (account.isOverdraftEnabled()) {
+                        if (account.isOverdrawn()) {
+                            // Take off the selected percentage based on the account type they are part of
+                            double balance = account.getBalance();
+                            double to_remove = Math.abs(balance) / 100 * account.getBalancePercentageChange();
+                            TransferAgent agent = new TransferAgent(this.getDatabase());
+                            try {
+                                try {
+                                    agent.transfer(account,
+                                            this.getDatabase().getBankAccount(BankServer.CENTRAL_BANK_ACCOUNT_NO),
+                                            to_remove);
+                                } catch (BTPPermissionDeniedException ex) {
+                                    Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                System.out.println("Removed: " + decimal_format.format(to_remove)
+                                        + " from overdrawn account: " + account.getAccountNumber());
+                            } catch (SQLException ex) {
+                                Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            this.last_overdrawn_check = System.currentTimeMillis();
+        }
 
+        if ((System.currentTimeMillis() - last_interest_check) > 2880000) {
+            System.out.println("Interest Check Initiaited");
+            try {
+                /* Get all the accounts in the database 
+                 * and give interest to those who are intitled to it*/
+                DBAccount[] accounts = this.getDatabase().getAllBankAccounts();
+                for (DBAccount account : accounts) {
+                    if (account.isInterestRateEnabled()) {
+                        if (account.isInBalance()) {
+                            // Take off the selected percentage based on the account type they are part of
+                            double balance = account.getBalance();
+                            double to_add = Math.abs(balance) / 100 * account.getBalancePercentageChange();
+                            TransferAgent agent = new TransferAgent(this.getDatabase());
+                            try {
+                                try {
+                                    agent.transfer(
+                                            this.getDatabase().getBankAccount(BankServer.CENTRAL_BANK_ACCOUNT_NO),
+                                            account, to_add);
+                                } catch (BTPPermissionDeniedException ex) {
+                                    Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                System.out.println("Added: " + decimal_format.format(to_add)
+                                        + " to bank account: " + account.getAccountNumber());
+                            } catch (SQLException ex) {
+                                Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            this.last_interest_check = System.currentTimeMillis();
+        }
     }
 
     public static void main(String[] args) {
         BankServer server = new BankServer();
         server.init();
-        server.run();
-
         // Never quit
         while (true) {
+            // Process the Bank
+            server.process();
+            try {
+                // Wait for a second no need to steal CPU resources.
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
@@ -119,23 +213,17 @@ public class BankServer implements BTPServerEventHandler {
 
     @Override
     public synchronized void transfer(RemoteTransferEvent event) throws BTPPermissionDeniedException {
-        throw new BTP.exceptions.BTPPermissionDeniedException("Transfers are not allowed.");
+        throw new BTP.exceptions.BTPPermissionDeniedException("Remote transfers are not allowed.");
     }
 
     @Override
     public synchronized void transfer(LocalTransferEvent event) throws BTPPermissionDeniedException, BTPDataException, BTPAccountNotFoundException {
         BTPAccount account_from = event.getAccountToTransferFrom();
         BTPAccount account_to = event.getAccountToTransferTo();
+
         try {
             DBAccount account_from_db = this.getDatabase().getBankAccount(account_from.getAccountNumber());
             DBAccount account_to_db = this.getDatabase().getBankAccount(account_to.getAccountNumber());
-            if (account_from_db == null) {
-                throw new BTP.exceptions.BTPAccountNotFoundException("Your bank account could not be found? has "
-                        + "it been deleted recently?");
-            }
-            if (account_to_db == null) {
-                throw new BTP.exceptions.BTPAccountNotFoundException("The recipient account could not be found.");
-            }
 
             TransferAgent transferAgent = new TransferAgent(this.getDatabase());
             try {

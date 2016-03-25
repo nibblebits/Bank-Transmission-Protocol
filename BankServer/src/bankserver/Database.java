@@ -111,13 +111,40 @@ public class Database {
                     this.server.getSystem().getOurBank().getSortcode(),
                     new BTPAccountType(rs.getInt("account_type"), rs.getString("name")),
                     null,
-                    rs.getDouble("balance"));
+                    rs.getDouble("balance"),
+                    rs.getBoolean("overdraft_enabled"),
+                    rs.getBoolean("interest_rate_enabled"),
+                    rs.getFloat("percentage_rate"));
         }
 
         rs.close();
         return bank_account;
     }
 
+    public DBAccount[] getAllBankAccounts() throws SQLException {
+        ArrayList<DBAccount> accounts = new ArrayList<DBAccount>();
+        String sql = "SELECT * FROM `bank_accounts` "
+          + "INNER JOIN `bank_account_types` ON `bank_account_types`.`type_id` = `bank_accounts`.`account_type` ";
+        stmt = db_con.prepareStatement(sql);
+        rs = stmt.executeQuery();
+        while (rs.next()) {
+            DBAccount bank_account = new DBAccount(
+                    rs.getInt("customer_id"),
+                    rs.getInt("bank_account_id"),
+                    this.server.getSystem().getOurBank().getSortcode(),
+                    new BTPAccountType(rs.getInt("account_type"), rs.getString("name")),
+                    null,
+                    rs.getDouble("balance"),
+                    rs.getBoolean("overdraft_enabled"),
+                    rs.getBoolean("interest_rate_enabled"),
+                    rs.getFloat("percentage_rate"));
+            accounts.add(bank_account);
+        }
+
+        rs.close();
+
+        return accounts.toArray(new DBAccount[accounts.size()]);
+    }
     public DBAccount[] getBankAccounts(int customer_id) throws SQLException {
         ArrayList<DBAccount> accounts = new ArrayList<DBAccount>();
         String sql = "SELECT * FROM `bank_accounts` "
@@ -133,7 +160,10 @@ public class Database {
                     this.server.getSystem().getOurBank().getSortcode(),
                     new BTPAccountType(rs.getInt("account_type"), rs.getString("name")),
                     null,
-                    rs.getDouble("balance"));
+                    rs.getDouble("balance"),
+                    rs.getBoolean("overdraft_enabled"),
+                    rs.getBoolean("interest_rate_enabled"),
+                    rs.getFloat("percentage_rate"));
             accounts.add(bank_account);
         }
 
