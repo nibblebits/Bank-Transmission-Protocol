@@ -26,30 +26,25 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
     }
 
     public void handleTransferEnquiry(BTPAccount account_from, BTPAccount account_to, double amount) {
-        // Little bit of security we don't want people sending money to themselves ;)
-        if (account_from.getAccountNumber() == account_to.getAccountNumber()
-                && account_from.getSortCode().equals(account_to.getSortCode())) {
-            this.sendExceptionResponseOverSocket(
-                    new BTP.exceptions.BTPPermissionDeniedException("You may not send money to the same account your sending from.")
-            );
-            return;
-        }
-        if (account_to.getSortCode().equals(server.getSystem().getOurBank().getSortcode())) {
-            try {
+        try {
+            // Little bit of security we don't want people sending money to themselves ;)
+            if (account_from.getAccountNumber() == account_to.getAccountNumber()
+                    && account_from.getSortCode().equals(account_to.getSortCode())) {
+                throw new BTP.exceptions.BTPPermissionDeniedException("You may not send money to the same account your sending from.");
+            }
+            if (account_to.getSortCode().equals(server.getSystem().getOurBank().getSortcode())) {
+
                 this.server.getEventHandler().transfer(new LocalTransferEvent(this.getClient(), account_from, account_to, amount));
                 this.getPrintStream().write(BTPResponseCode.ALL_OK);
-            } catch (Exception ex) {
-                // Send an exception response to the client as their was an error
-                this.sendExceptionResponseOverSocket(ex);
-            }
-        } else {
-            try {
+
+            } else {
+
                 this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount));
                 this.getPrintStream().write(BTPResponseCode.ALL_OK);
-            } catch (Exception ex) {
-                // Send an exception response to the client as their was an error
-                this.sendExceptionResponseOverSocket(ex);
             }
+        } catch (Exception ex) {
+            // Send an exception response to the client as their was an error
+            this.sendExceptionResponseOverSocket(ex);
         }
     }
 
