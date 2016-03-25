@@ -121,13 +121,12 @@ public class BTPServerCustomerClient extends BTPServerClient {
 
                 int account_no = Integer.parseInt(this.getBufferedReader().readLine());
                 try {
-                    if (!this.isMyBankAccount(account_no)) {
+                    account = this.getBankAccount(account_no);
+                    if (account == null) {
                         throw new BTP.exceptions.BTPPermissionDeniedException(
                                 "You may not request transactions, this is not your bank account."
                         );
                     }
-                    account = this.getBankAccount(account_no);
-
                     date_from.setTime(Long.valueOf(this.getBufferedReader().readLine()));
                     date_to.setTime(Long.valueOf(this.getBufferedReader().readLine()));
 
@@ -145,20 +144,12 @@ public class BTPServerCustomerClient extends BTPServerClient {
     }
 
     protected BTPAccount getBankAccount(int id) throws BTPPermissionDeniedException, BTPDataException, Exception {
-        BTPAccount[] accounts = this.getServer().getEventHandler().getBankAccountsOfCustomer(
-                new GetBankAccountsOfCustomerEvent(this, this.getCustomer().getId())
-        );
-
-        for (BTPAccount account : accounts) {
-            if (account.getAccountNumber() == id) {
+        BTPAccount account = this.getServer().getEventHandler().getBankAccount(new GetBankAccountEvent(this, id));
+        if (account != null) {
+            if (account.getCustomerId() == this.getCustomer().getId()) {
                 return account;
             }
         }
-
         return null;
-    }
-
-    public boolean isMyBankAccount(int id) throws BTPPermissionDeniedException, BTPDataException, Exception {
-        return getBankAccount(id) != null;
     }
 }
