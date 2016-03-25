@@ -7,7 +7,11 @@
 package BTP;
 
 /**
+ * <h1>Holds a bank account</h1>
+ * The BTPAccount class is a container of a bank account BTPAccount's can be
+ * transmitted over a socket both partially and entirely
  *
+ * @version 1.0
  * @author Daniel
  */
 public class BTPAccount {
@@ -52,22 +56,44 @@ public class BTPAccount {
         }
     }
 
+    /* 
+     This method returns the customer id of this bank account.
+     @return int Returns the customer id of the BTPAccount
+     */
     public int getCustomerId() {
         return this.customer_id;
     }
 
+    /* 
+     This method returns the account number of this bank account.
+     @return int Returns the account number of the BTPAccount
+     */
     public int getAccountNumber() {
         return this.account_no;
     }
 
+    /* 
+     This method returns the sort code of this bank account.
+     @return String Returns the sort code of the BTPAccount
+     */
     public String getSortCode() {
         return this.sort_code;
     }
 
+    /* 
+     This method returns the extra detail of this bank account.
+     @return BTPKeyContainer Returns the extra detail of the BTPAccount
+     @see BTPKeyContainer
+     */
     public BTPKeyContainer getExtraDetail() {
         return this.extra;
     }
 
+    /* 
+     This method returns the account type of this bank account.
+     @return BTPAccountType Returns the account type of the BTPAccount
+     @see BTPAccountType
+     */
     public BTPAccountType getAccountType() {
         return this.account_type;
     }
