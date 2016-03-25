@@ -16,3 +16,4 @@ version.properties
 *.db
 *.html
 *.css
+*.js
