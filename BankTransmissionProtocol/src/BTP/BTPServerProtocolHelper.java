@@ -7,11 +7,11 @@ package BTP;
 
 import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
+import BTP.exceptions.BTPInvalidAccountTypeException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.Socket;
 import java.util.Date;
 
 /**
@@ -94,6 +94,16 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
         return customer_id;
     }
 
+    public void handleBankCreationEnquiry()
+            throws BTPPermissionDeniedException, BTPDataException,
+            BTPAccountNotFoundException, BTPInvalidAccountTypeException, Exception {
+        int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
+        BTPAccount account = this.readAccountFromSocket();
+        this.server.getEventHandler().createBankAccount(
+                new CreateNewBankAccountEvent(this.getClient(), customer_id, account));
+        this.getPrintStream().write(BTPResponseCode.ALL_OK);
+    }
+
     public BTPCustomer handleGetCustomerEnquiry()
             throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, IOException {
         int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
@@ -104,7 +114,7 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
         return customer;
     }
 
-    public BTPAccount[] handleGetBankAccountsOfCustomerEnquiry(int customer_id) 
+    public BTPAccount[] handleGetBankAccountsOfCustomerEnquiry(int customer_id)
             throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, Exception {
         BTPAccount[] bank_accounts = this.server.getEventHandler().getBankAccountsOfCustomer(
                 new GetBankAccountsOfCustomerEvent(this.getClient(), customer_id)
