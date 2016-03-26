@@ -85,7 +85,7 @@ public class BankServer implements BTPServerEventHandler {
                             // Take off the selected percentage based on the account type they are part of
                             double balance = account.getBalance();
                             double to_remove = Math.abs(balance) / 100 * account.getBalancePercentageChange();
-                  
+
                             try {
                                 try {
                                     // Withdraw the money from the account
@@ -181,13 +181,32 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
+    public void employeeLogin(EmployeeLoginEvent event) throws BTPPermissionDeniedException, BTPDataException, BTPAccountNotFoundException, Exception {
+        try {
+            DBEmployee employee = this.database.getEmployee(event.getEmployeeId());
+
+            if (employee != null && event.getPassword().equals(employee.getPassword())) {
+                // Login success!
+                return;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(SQLException.class.getName()).log(Level.SEVERE, null, ex);
+            throw new BTP.exceptions.BTPDataException("An issue occured when reading the database");
+        } catch (Exception ex) {
+            Logger.getLogger(Exception.class.getName()).log(Level.SEVERE, null, ex);
+            throw new BTP.exceptions.BTPDataException("An unknown issue occured.");
+        }
+        throw new BTP.exceptions.BTPPermissionDeniedException("Failed to login due to bad login details");
+    }
+
+    @Override
     public synchronized void createBankAccount(CreateNewBankAccountEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public synchronized void createCustomer(CreateCustomerEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public synchronized int createCustomer(CreateCustomerEvent event) {
+        return 30;
     }
 
     @Override
@@ -206,7 +225,7 @@ public class BankServer implements BTPServerEventHandler {
         return accounts;
     }
 
-        @Override
+    @Override
     public synchronized BTPAccount getBankAccount(GetBankAccountEvent event) throws BTPPermissionDeniedException, BTPDataException, BTPDataException, BTPAccountNotFoundException {
         try {
             return this.getDatabase().getBankAccount(event.getAccountNo());
@@ -215,6 +234,7 @@ public class BankServer implements BTPServerEventHandler {
             throw new BTP.exceptions.BTPDataException("Database error.");
         }
     }
+
     @Override
     public synchronized void setBankAccountsOverdraftLimit(SetBankAccountOverdraftLimitEvent event) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -249,7 +269,7 @@ public class BankServer implements BTPServerEventHandler {
 
     @Override
     public synchronized BTPCustomer getCustomer(GetCustomerEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new BTPCustomer(56, "Mr", "Daniel", "Paul", "McCarthy", null);
     }
 
     @Override
@@ -282,10 +302,4 @@ public class BankServer implements BTPServerEventHandler {
         }
         throw new BTP.exceptions.BTPPermissionDeniedException("Client type is not allowed to view transactions");
     }
-
-    @Override
-    public void employeeLogin(EmployeeLoginEvent event) throws BTPPermissionDeniedException, BTPDataException, BTPAccountNotFoundException, Exception {
-        
-    }
-
 }
