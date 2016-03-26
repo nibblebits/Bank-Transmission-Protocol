@@ -15,5 +15,6 @@ public class BTPOperation {
     public static final int GET_BANK_ACCOUNT = 2;
     public static final int GET_BALANCE = 3;
     public static final int GET_TRANSACTIONS = 4;
-    public static final int SHUTDOWN = 5;
+    public static final int CREATE_CUSTOMER = 5;
+    public static final int SHUTDOWN = 6;
 }

@@ -7,6 +7,7 @@ package BTP;
 
 import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
+import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.BufferedReader;
 import java.io.PrintStream;
 import java.net.Socket;
@@ -80,6 +81,33 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
         }
         this.getPrintStream().flush();
         return transactions;
+    }
+
+    public int handleCustomerCreationEnquiry() throws BTPPermissionDeniedException, BTPDataException, Exception {
+        String customer_title = this.getBufferedReader().readLine();
+        String customer_firstname = this.getBufferedReader().readLine();
+        String customer_middlename = this.getBufferedReader().readLine();
+        String customer_surname = this.getBufferedReader().readLine();
+        BTPKeyContainer extra = new BTPKeyContainer();
+
+        // Read in the extra information
+        int total_extras = Integer.parseInt(this.getBufferedReader().readLine());
+        for (int i = 0; i < total_extras; i++) {
+            extra.addKey(new BTPKey(this.getBufferedReader().readLine(),
+                    this.getBufferedReader().readLine()));
+        }
+
+        int customer_id = this.server.getEventHandler().createCustomer(
+                new CreateCustomerEvent(this.getClient(),
+                        new BTPCustomer(-1,
+                                customer_title,
+                                customer_firstname,
+                                customer_middlename,
+                                customer_surname,
+                                extra)));
+        this.getPrintStream().write(BTPResponseCode.ALL_OK);
+        this.getPrintStream().println(Integer.toString(customer_id));
+        return customer_id;
     }
 
     public void sendExceptionResponseOverSocket(Exception exception) {

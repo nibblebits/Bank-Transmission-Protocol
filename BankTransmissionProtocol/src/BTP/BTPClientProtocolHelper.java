@@ -70,4 +70,27 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
         }
         return transactions;
     }
+
+    public int createCustomer(BTPCustomer customer) throws BTPPermissionDeniedException, BTPDataException, Exception {
+        this.getPrintStream().write(BTPOperation.CREATE_CUSTOMER);
+        this.getPrintStream().println(customer.getTitle());
+        this.getPrintStream().println(customer.getFirstname());
+        this.getPrintStream().println(customer.getMiddlename());
+        this.getPrintStream().println(customer.getSurname());
+        this.getPrintStream().println(Integer.toString(customer.getExtraDetail().getTotalKeys()));
+        for (int i = 0; i < customer.getExtraDetail().getTotalKeys(); i++) {
+            BTPKey key = customer.getExtraDetail().getKey(i);
+            this.getPrintStream().println(key.getIndexName());
+            this.getPrintStream().println(key.getValue());
+        }
+
+        int response = this.getBufferedReader().read();
+        if (response != BTPResponseCode.ALL_OK) {
+            String message = this.getBufferedReader().readLine();
+            this.getSystem().throwExceptionById(response, message);
+        }
+        
+        int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
+        return customer_id;
+    }
 }
