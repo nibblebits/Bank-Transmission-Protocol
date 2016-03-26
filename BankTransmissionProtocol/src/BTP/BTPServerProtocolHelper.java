@@ -86,8 +86,9 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
 
     public int handleCustomerCreationEnquiry() throws BTPPermissionDeniedException, BTPDataException, Exception {
         BTPCustomer customer = this.readCustomerFromSocket();
+        String password = this.getBufferedReader().readLine();
         int customer_id = this.server.getEventHandler().createCustomer(
-                new CreateCustomerEvent(this.getClient(), customer));
+                new CreateCustomerEvent(this.getClient(), customer, password));
         this.getPrintStream().write(BTPResponseCode.ALL_OK);
         this.getPrintStream().println(Integer.toString(customer_id));
         return customer_id;

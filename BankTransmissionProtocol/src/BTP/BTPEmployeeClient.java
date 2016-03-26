@@ -88,10 +88,10 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         }
     }
 
-    public int createCustomer(BTPCustomer customer) throws BTP.exceptions.BTPPermissionDeniedException,
+    public int createCustomer(BTPCustomer customer, String password) throws BTP.exceptions.BTPPermissionDeniedException,
             BTP.exceptions.BTPDataException, BTP.exceptions.BTPUnknownException, Exception {
         if (this.isAuthenticated()) {
-            return this.getProtocolHelper().createCustomer(customer);
+            return this.getProtocolHelper().createCustomer(customer, password);
         } else {
             throw new BTP.exceptions.BTPPermissionDeniedException(
                     "Permission denied, you must be logged in to create a customer");

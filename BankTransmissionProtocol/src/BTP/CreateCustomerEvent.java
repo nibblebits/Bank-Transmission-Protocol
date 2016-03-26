@@ -11,13 +11,18 @@ package BTP;
  */
 public class CreateCustomerEvent extends BTPEvent {
     private final BTPCustomer customer;
-    
-    public CreateCustomerEvent(BTPClient client, BTPCustomer customer) {
+    private final String password;
+    public CreateCustomerEvent(BTPClient client, BTPCustomer customer, String password) {
         super(client);
         this.customer = customer;
+        this.password = password;
     }
     
     public BTPCustomer getCustomerToCreate() {
         return this.customer;
+    }
+    
+    public String getPassword() {
+        return this.password;
     }
 }

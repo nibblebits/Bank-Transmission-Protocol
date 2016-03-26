@@ -72,9 +72,10 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
         return transactions;
     }
 
-    public int createCustomer(BTPCustomer customer) throws BTPPermissionDeniedException, BTPDataException, Exception {
+    public int createCustomer(BTPCustomer customer, String password) throws BTPPermissionDeniedException, BTPDataException, Exception {
         this.getPrintStream().write(BTPOperation.CREATE_CUSTOMER);
         this.writeCustomerToSocket(customer);
+        this.getPrintStream().println(password);
         int response = this.getBufferedReader().read();
         if (response != BTPResponseCode.ALL_OK) {
             String message = this.getBufferedReader().readLine();
