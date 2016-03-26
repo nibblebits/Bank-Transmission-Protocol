@@ -5,6 +5,7 @@
  */
 package BTP;
 
+import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
@@ -61,8 +62,22 @@ public class BTPServerEmployeeClient extends BTPServerClient {
                 } catch (Exception ex) {
                     this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
                 }
-                break;
             }
+            break;
+
+            case BTPOperation.GET_BANK_ACCOUNT: {
+                int account_id = Integer.parseInt(this.getBufferedReader().readLine());
+                try {
+                    BTPAccount account = this.getServer().getEventHandler().getBankAccount(
+                            new GetBankAccountEvent(this, account_id));
+                    this.getProtocolHelper().writeAccountToSocket(account);
+                } catch (Exception ex) {
+                    this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
+                }
+            }
+            break;
+                
+            
         }
     }
 
