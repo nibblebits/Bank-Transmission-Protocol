@@ -254,14 +254,9 @@ public class BankServer implements BTPServerEventHandler {
 
     @Override
     public synchronized double getBalance(BalanceEnquiryEvent event) throws BTPPermissionDeniedException, SQLException, BTPDataException {
-        BTPClient client = event.getClient();
-        BTPAccount bank_account_to_view = event.getAccount();
-
-        BTPServerCustomerClient c_client = (BTPServerCustomerClient) client;
-        DBCustomer c = database.getCustomer(c_client.getCustomer().getId());
-        DBAccount c_account = c.getBankAccount(event.getAccount().getAccountNumber());
+        DBAccount c_account = this.getDatabase().getBankAccount(event.getAccount().getAccountNumber());
         if (c_account == null) {
-            throw new BTP.exceptions.BTPDataException("The bank account " + bank_account_to_view.getAccountNumber() + " does not exist");
+            throw new BTP.exceptions.BTPDataException("The bank account " + event.getAccount().getAccountNumber() + " does not exist");
         }
         return c_account.getBalance();
     }
