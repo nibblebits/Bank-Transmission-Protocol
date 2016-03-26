@@ -57,21 +57,6 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         return null;
     }
 
-    public BTPAccount[] getBankAccounts(int customer_id)
-            throws BTPPermissionDeniedException, BTPDataException, BTPUnknownException, Exception {
-        if (this.isAuthenticated()) {
-            return this.getProtocolHelper().getBankAccountsOfCustomer(customer_id);
-        } else {
-            throw new BTP.exceptions.BTPPermissionDeniedException(
-                    "Could not get banks of customer as you are not authenticated");
-        }
-    }
-
-    public BTPAccount[] getBankAccounts(BTPCustomer customer)
-            throws BTPPermissionDeniedException, BTPDataException, BTPUnknownException, Exception {
-        return this.getBankAccounts(customer.getId());
-    }
-
     public BTPAccount getBankAccount(int account_no) throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, Exception {
         if (this.isAuthenticated()) {
             this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNT);
@@ -86,6 +71,21 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         } else {
             throw new BTP.exceptions.BTPPermissionDeniedException("You must be authenticated to retrieve a bank account");
         }
+    }
+
+    public BTPAccount[] getBankAccounts(int customer_id)
+            throws BTPPermissionDeniedException, BTPDataException, BTPUnknownException, Exception {
+        if (this.isAuthenticated()) {
+            return this.getProtocolHelper().getBankAccountsOfCustomer(customer_id);
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException(
+                    "Could not get banks of customer as you are not authenticated");
+        }
+    }
+
+    public BTPAccount[] getBankAccounts(BTPCustomer customer)
+            throws BTPPermissionDeniedException, BTPDataException, BTPUnknownException, Exception {
+        return this.getBankAccounts(customer.getId());
     }
 
     public int createCustomer(BTPCustomer customer, String password) throws BTP.exceptions.BTPPermissionDeniedException,
@@ -108,7 +108,7 @@ public class BTPEmployeeClient extends BTPConnectorClient {
     }
 
     public void createBankAccount(BTPCustomer customer, BTPAccount account) {
-        
+
     }
 
     public void setBankAccountDetail(BTPKeyContainer detail) {
