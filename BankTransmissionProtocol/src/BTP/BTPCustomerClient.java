@@ -76,21 +76,11 @@ public class BTPCustomerClient extends BTPConnectorClient {
     public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException, BTPDataException, Exception {
         BTPAccount[] accounts = null;
         if (this.isAuthenticated()) {
-            this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNTS);
-            int response = this.getBufferedReader().read();
-            if (response != BTPResponseCode.ALL_OK) {
-                String message = this.getBufferedReader().readLine();
-                this.getSystem().throwExceptionById(response, message);
-            }
-            int amount = this.getBufferedReader().read();
-            accounts = new BTPAccount[amount];
-            for (int i = 0; i < amount; i++) {
-                accounts[i] = this.getProtocolHelper().readAccountFromSocket();
-            }
-            return accounts;
+           accounts = this.getProtocolHelper().getBankAccountsOfCustomer(this.getCustomerId());
         } else {
             throw new BTP.exceptions.BTPPermissionDeniedException("You must be logged in to retrieve bank accounts.");
         }
+        return accounts;
     }
 
     public int getCustomerId() {

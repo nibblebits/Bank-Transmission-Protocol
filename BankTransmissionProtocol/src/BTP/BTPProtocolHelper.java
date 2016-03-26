@@ -110,6 +110,45 @@ public abstract class BTPProtocolHelper {
         return new BTPTransaction(account_from, account_to, amount, date);
     }
 
+    public void writeCustomerToSocket(BTPCustomer customer) throws IOException {
+        this.getPrintStream().println(Integer.toString(customer.getId()));
+        this.getPrintStream().println(customer.getTitle());
+        this.getPrintStream().println(customer.getFirstname());
+        this.getPrintStream().println(customer.getMiddlename());
+        this.getPrintStream().println(customer.getSurname());
+        this.getPrintStream().println(Integer.toString(customer.getExtraDetail().getTotalKeys()));
+        for (int i = 0; i < customer.getExtraDetail().getTotalKeys(); i++) {
+            BTPKey key = customer.getExtraDetail().getKey(i);
+            this.getPrintStream().println(key.getIndexName());
+            this.getPrintStream().println(key.getValue());
+        }
+    }
+
+    public BTPCustomer readCustomerFromSocket() throws IOException {
+        int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
+        String customer_title = this.getBufferedReader().readLine();
+        String customer_firstname = this.getBufferedReader().readLine();
+        String customer_middlename = this.getBufferedReader().readLine();
+        String customer_surname = this.getBufferedReader().readLine();
+        BTPKeyContainer extra = new BTPKeyContainer();
+
+        String value = this.getBufferedReader().readLine();
+        // Read in the extra information
+        int total_extras = Integer.parseInt(value);
+        for (int i = 0; i < total_extras; i++) {
+            extra.addKey(new BTPKey(this.getBufferedReader().readLine(),
+                    this.getBufferedReader().readLine()));
+        }
+
+        return new BTPCustomer(
+                customer_id,
+                customer_title,
+                customer_firstname,
+                customer_middlename,
+                customer_surname,
+                extra);
+    }
+
     protected BTPClient getClient() {
         return this.client;
     }

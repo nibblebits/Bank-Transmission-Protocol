@@ -8,6 +8,7 @@ package BTP;
 import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
+import BTP.exceptions.BTPUnknownException;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -56,8 +57,19 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         return null;
     }
 
-    public BTPAccount[] getBankAccounts(BTPCustomer customer) {
-        return null;
+    public BTPAccount[] getBankAccounts(int customer_id)
+            throws BTPPermissionDeniedException, BTPDataException, BTPUnknownException, Exception {
+        if (this.isAuthenticated()) {
+            return this.getProtocolHelper().getBankAccountsOfCustomer(customer_id);
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException(
+                    "Could not get banks of customer as you are not authenticated");
+        }
+    }
+
+    public BTPAccount[] getBankAccounts(BTPCustomer customer)
+            throws BTPPermissionDeniedException, BTPDataException, BTPUnknownException, Exception {
+        return this.getBankAccounts(customer.getId());
     }
 
     public BTPAccount getBankAccount(int account_no) throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, Exception {
@@ -86,12 +98,17 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         }
     }
 
-    public BTPCustomer getCustomer(int customer_id) {
-        return null;
+    public BTPCustomer getCustomer(int customer_id) throws BTPPermissionDeniedException, BTPAccountNotFoundException, Exception {
+        if (this.isAuthenticated()) {
+            return this.getProtocolHelper().getCustomer(customer_id);
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException(
+                    "Permission denied, you must be logged in to retrieve a customer");
+        }
     }
 
     public void createBankAccount(BTPCustomer customer, BTPAccount account) {
-
+        
     }
 
     public void setBankAccountDetail(BTPKeyContainer detail) {

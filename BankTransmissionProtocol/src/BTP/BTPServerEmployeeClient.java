@@ -102,7 +102,27 @@ public class BTPServerEmployeeClient extends BTPServerClient {
                 }
             }
             break;
+
+            case BTPOperation.GET_CUSTOMER: {
+                try {
+                    this.getProtocolHelper().handleGetCustomerEnquiry();
+                } catch (Exception ex) {
+                    this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
+                }
+            }
+            break;
+
+            case BTPOperation.GET_BANK_ACCOUNTS: {
+                try {
+                    int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
+                    this.getProtocolHelper().handleGetBankAccountsOfCustomerEnquiry(customer_id);
+                } catch (Exception ex) {
+                    this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
+                }
+                break;
+            }
         }
+
     }
 
     public BTPEmployee getEmployee() {

@@ -5,6 +5,7 @@
  */
 package BTP;
 
+import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import BTP.exceptions.BTPUnknownException;
@@ -73,24 +74,50 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
 
     public int createCustomer(BTPCustomer customer) throws BTPPermissionDeniedException, BTPDataException, Exception {
         this.getPrintStream().write(BTPOperation.CREATE_CUSTOMER);
-        this.getPrintStream().println(customer.getTitle());
-        this.getPrintStream().println(customer.getFirstname());
-        this.getPrintStream().println(customer.getMiddlename());
-        this.getPrintStream().println(customer.getSurname());
-        this.getPrintStream().println(Integer.toString(customer.getExtraDetail().getTotalKeys()));
-        for (int i = 0; i < customer.getExtraDetail().getTotalKeys(); i++) {
-            BTPKey key = customer.getExtraDetail().getKey(i);
-            this.getPrintStream().println(key.getIndexName());
-            this.getPrintStream().println(key.getValue());
-        }
-
+        this.writeCustomerToSocket(customer);
         int response = this.getBufferedReader().read();
         if (response != BTPResponseCode.ALL_OK) {
             String message = this.getBufferedReader().readLine();
             this.getSystem().throwExceptionById(response, message);
         }
-        
+
         int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
         return customer_id;
+    }
+
+    public BTPCustomer getCustomer(int customer_id)
+            throws BTPPermissionDeniedException, BTPDataException, BTPAccountNotFoundException, Exception {
+        this.getPrintStream().write(BTPOperation.GET_CUSTOMER);
+        this.getPrintStream().println(Integer.toString(customer_id));
+        int response = this.getBufferedReader().read();
+        if (response == BTPResponseCode.ALL_OK) {
+            return this.readCustomerFromSocket();
+        } else {
+            String message = this.getBufferedReader().readLine();
+            this.getSystem().throwExceptionById(response, message);
+        }
+        return null;
+    }
+
+    public BTPAccount[] getBankAccountsOfCustomer(int customer_id)
+            throws BTPPermissionDeniedException, BTPAccountNotFoundException,
+            BTPDataException, BTPUnknownException, Exception {
+        this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNTS);
+        /* Only send the customer id if this is not a customer client, 
+        as customers can only get bank accounts of their own customer account*/
+        if (!(this.getClient() instanceof BTPCustomerClient)) {
+            this.getPrintStream().println(Integer.toString(customer_id));
+        }
+        int response = this.getBufferedReader().read();
+        if (response != BTPResponseCode.ALL_OK) {
+            String message = this.getBufferedReader().readLine();
+            this.getSystem().throwExceptionById(response, message);
+        }
+        int amount = this.getBufferedReader().read();
+        BTPAccount[] accounts = new BTPAccount[amount];
+        for (int i = 0; i < amount; i++) {
+            accounts[i] = this.readAccountFromSocket();
+        }
+        return accounts;
     }
 }

@@ -75,21 +75,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
 
             case BTPOperation.GET_BANK_ACCOUNTS: {
                 try {
-                    BTPAccount[] bank_accounts = this.getServer().getEventHandler().getBankAccountsOfCustomer(
-                            new GetBankAccountsOfCustomerEvent(this, this.getCustomer().getId())
-                    );
-                    // A default check just in case the event handler does not throw an exception upon their being no bank accounts
-                    if (bank_accounts == null || bank_accounts.length == 0) {
-                        this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-                        this.getPrintStream().println("Error no bank accounts have been found.");
-                    } else {
-                        this.getPrintStream().write(BTPResponseCode.ALL_OK);
-                        this.getPrintStream().write(bank_accounts.length);
-                        for (int i = 0; i < bank_accounts.length; i++) {
-                            BTPAccount account = bank_accounts[i];
-                            this.getProtocolHelper().writeAccountToSocket(account);
-                        }
-                    }
+                    this.getProtocolHelper().handleGetBankAccountsOfCustomerEnquiry(this.getCustomer().getId());
                 } catch (Exception ex) {
                     // Send an exception response to the client as their was an error
                     this.getProtocolHelper().sendExceptionResponseOverSocket(ex);

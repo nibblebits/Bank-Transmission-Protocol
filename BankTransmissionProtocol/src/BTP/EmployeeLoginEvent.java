@@ -19,4 +19,12 @@ public class EmployeeLoginEvent extends BTPEvent {
         this.password = password;
     }
     
+    public int getEmployeeId() {
+        return this.employee_id;
+    }
+    
+    public String getPassword() {
+        return this.password;
+    }
+    
 }
