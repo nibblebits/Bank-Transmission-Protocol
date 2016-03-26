@@ -5,6 +5,7 @@
  */
 package BTP;
 
+import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
@@ -52,6 +53,22 @@ public class BTPEmployeeClient extends BTPConnectorClient {
 
     public BTPAccount[] getBankAccounts(BTPCustomer customer) {
         return null;
+    }
+
+    public BTPAccount getBankAccount(int account_no) throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, Exception {
+        if (this.isAuthenticated()) {
+            this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNT);
+            this.getPrintStream().println(Integer.toString(account_no));
+            int response = Integer.parseInt(this.getBufferedReader().readLine());
+            if (response != BTPResponseCode.ALL_OK) {
+                String message = this.getBufferedReader().readLine();
+                this.getSystem().throwExceptionById(response, message);
+            }
+
+            return this.getProtocolHelper().readAccountFromSocket();
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException("You must be authenticated to retrieve a bank account");
+        }
     }
 
     public void createCustomer(BTPCustomer customer) {
