@@ -43,8 +43,13 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         }
     }
 
-    public double getBalance(BTPAccount account) {
-        return 0;
+    public double getBalance(BTPAccount account) throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, Exception {
+        if (this.isAuthenticated()) {
+            return this.getProtocolHelper().getBalance(account);
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException("Could not get balance of bank account: "
+                    + account.getAccountNumber() + " as this client is not authenticated");
+        }
     }
 
     public BTPTransaction[] getTransactions(BTPAccount account) {
@@ -59,7 +64,7 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         if (this.isAuthenticated()) {
             this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNT);
             this.getPrintStream().println(Integer.toString(account_no));
-            int response = Integer.parseInt(this.getBufferedReader().readLine());
+            int response = this.getBufferedReader().read();
             if (response != BTPResponseCode.ALL_OK) {
                 String message = this.getBufferedReader().readLine();
                 this.getSystem().throwExceptionById(response, message);
