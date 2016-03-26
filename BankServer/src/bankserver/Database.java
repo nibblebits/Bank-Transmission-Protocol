@@ -124,7 +124,7 @@ public class Database {
     public DBAccount[] getAllBankAccounts() throws SQLException {
         ArrayList<DBAccount> accounts = new ArrayList<DBAccount>();
         String sql = "SELECT * FROM `bank_accounts` "
-          + "INNER JOIN `bank_account_types` ON `bank_account_types`.`type_id` = `bank_accounts`.`account_type` ";
+                + "INNER JOIN `bank_account_types` ON `bank_account_types`.`type_id` = `bank_accounts`.`account_type` ";
         stmt = db_con.prepareStatement(sql);
         rs = stmt.executeQuery();
         while (rs.next()) {
@@ -145,11 +145,12 @@ public class Database {
 
         return accounts.toArray(new DBAccount[accounts.size()]);
     }
+
     public DBAccount[] getBankAccounts(int customer_id) throws SQLException {
         ArrayList<DBAccount> accounts = new ArrayList<DBAccount>();
         String sql = "SELECT * FROM `bank_accounts` "
-          + "INNER JOIN `bank_account_types` ON `bank_account_types`.`type_id` = `bank_accounts`.`account_type` "
-          + "WHERE `customer_id` = ? ";
+                + "INNER JOIN `bank_account_types` ON `bank_account_types`.`type_id` = `bank_accounts`.`account_type` "
+                + "WHERE `customer_id` = ? ";
         stmt = db_con.prepareStatement(sql);
         stmt.setInt(1, customer_id);
         rs = stmt.executeQuery();
@@ -219,5 +220,29 @@ public class Database {
         stmt.setInt(4, transaction.getSenderAccount().getAccountNumber());
         stmt.setDouble(5, transaction.getAmountTransferred());
         stmt.execute();
+    }
+
+    public DBEmployee getEmployee(int employee_id) throws SQLException {
+        DBEmployee employee = null;
+        String sql = "SELECT * FROM `employees`\n"
+                + "INNER JOIN (person) ON `employees`.`person_id` = `person`.`person_id`\n"
+                + "INNER JOIN (titles) ON `person`.`title` = `titles`.`title_id`\n"
+                +  "WHERE `employee_id` = ?\n";
+        stmt = db_con.prepareStatement(sql);
+        stmt.setInt(1, employee_id);
+        rs = stmt.executeQuery();
+        if (rs.next()) {
+            employee = new DBEmployee(
+                    rs.getInt("person_id"),
+                    rs.getString("title"),
+                    rs.getString("firstname"),
+                    rs.getString("middlename"),
+                    rs.getString("surname"),
+                    null,
+                    rs.getString("password"));    
+        }
+
+        rs.close();
+        return employee;
     }
 }
