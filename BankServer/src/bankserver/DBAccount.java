@@ -20,14 +20,16 @@ class DBAccount extends BTPAccount {
     private boolean overdraft_enabled;
     private boolean interest_rate_enabled;
     private float percentage_change;
-
+    private double overdraft_limit;
+    
     public DBAccount(int customer_id, int account_no, String sort_code, BTPAccountType account_type, BTPKeyContainer extra,
-            double balance, boolean overdraft_enabled, boolean interest_rate_enabled, float percentage_change) {
+            double balance, boolean overdraft_enabled, boolean interest_rate_enabled, float percentage_change, double overdraft_limit) {
         super(customer_id, account_no, sort_code, account_type, extra);
         this.balance = balance;
         this.overdraft_enabled = overdraft_enabled;
         this.interest_rate_enabled = interest_rate_enabled;
         this.percentage_change = percentage_change;
+        this.overdraft_limit = overdraft_limit;
     }
 
     public double getBalance() {
@@ -65,5 +67,9 @@ class DBAccount extends BTPAccount {
 
     public float getBalancePercentageChange() {
         return this.percentage_change;
+    }
+    
+    public double getOverdraftLimit() {
+        return this.overdraft_limit;
     }
 }

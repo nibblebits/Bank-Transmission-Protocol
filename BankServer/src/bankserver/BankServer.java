@@ -59,11 +59,11 @@ public class BankServer implements BTPServerEventHandler {
             this_bank = new BTPBank("22-33-44", "dmwkei38823r238r23amn3b4583j", "127.0.0.1", 4444);
             this_bank.setBankAccount(new BTPAccount(55555555, this_bank.getSortcode(), null, null));
             this.decimal_format = new DecimalFormat("£##.##");
-            
+
             system = new BTPSystem(this_bank);
             system.addTrustedBank(new BTPBank("33-44-55", "MASKAMSKWEIJR32734yr734hf3fiwkmdw@", "127.0.0.1", 4445));
             BTPServer server = system.newServer(this);
-            
+
             System.out.println("BTP Bank Server");
             System.out.println("BTP Build: " + this.getSystem().getBuildVersion());
             try {
@@ -88,22 +88,24 @@ public class BankServer implements BTPServerEventHandler {
                 for (DBAccount account : accounts) {
                     if (account.isOverdraftEnabled()) {
                         if (account.isOverdrawn()) {
-                            // Take off the selected percentage based on the account type they are part of
                             double balance = account.getBalance();
-                            double to_remove = Math.abs(balance) / 100 * account.getBalancePercentageChange();
+                            if (Math.abs(balance) > account.getOverdraftLimit()) {
+                                // Take off the selected percentage based on the account type they are part of
+                                double to_remove = Math.abs(balance) / 100 * account.getBalancePercentageChange();
 
-                            try {
                                 try {
-                                    // Withdraw the money from the account
-                                    account.withdraw(to_remove);
-                                    this.getDatabase().updateAccount(account);
-                                } catch (BTPPermissionDeniedException ex) {
+                                    try {
+                                        // Withdraw the money from the account
+                                        account.withdraw(to_remove);
+                                        this.getDatabase().updateAccount(account);
+                                    } catch (BTPPermissionDeniedException ex) {
+                                        Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                    System.out.println("Removed: " + decimal_format.format(to_remove)
+                                            + " from overdrawn account: " + account.getAccountNumber());
+                                } catch (SQLException ex) {
                                     Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                                System.out.println("Removed: " + decimal_format.format(to_remove)
-                                        + " from overdrawn account: " + account.getAccountNumber());
-                            } catch (SQLException ex) {
-                                Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
                     }
@@ -220,11 +222,6 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized void setDailyOverdrawnCharge(SetDailyOverdrawnChargeEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public synchronized BTPAccountType[] getBankAccountTypes(GetBankAccountTypesEvent event) throws BTPDataException {
         try {
             return this.getDatabase().getBankAccountTypes();
@@ -247,11 +244,6 @@ public class BankServer implements BTPServerEventHandler {
             Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
             throw new BTP.exceptions.BTPDataException("Database error.");
         }
-    }
-
-    @Override
-    public synchronized void setBankAccountsOverdraftLimit(SetBankAccountOverdraftLimitEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

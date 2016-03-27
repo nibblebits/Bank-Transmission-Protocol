@@ -115,7 +115,8 @@ public class Database {
                     rs.getDouble("balance"),
                     rs.getBoolean("overdraft_enabled"),
                     rs.getBoolean("interest_rate_enabled"),
-                    rs.getFloat("percentage_rate"));
+                    rs.getFloat("percentage_rate"),
+                    rs.getDouble("overdraft_limit"));
         }
 
         rs.close();
@@ -138,7 +139,8 @@ public class Database {
                     rs.getDouble("balance"),
                     rs.getBoolean("overdraft_enabled"),
                     rs.getBoolean("interest_rate_enabled"),
-                    rs.getFloat("percentage_rate"));
+                    rs.getFloat("percentage_rate"),
+                    rs.getDouble("overdraft_limit"));
             accounts.add(bank_account);
         }
 
@@ -165,7 +167,8 @@ public class Database {
                     rs.getDouble("balance"),
                     rs.getBoolean("overdraft_enabled"),
                     rs.getBoolean("interest_rate_enabled"),
-                    rs.getFloat("percentage_rate"));
+                    rs.getFloat("percentage_rate"),
+                    rs.getDouble("overdraft_limit"));
             accounts.add(bank_account);
         }
 
