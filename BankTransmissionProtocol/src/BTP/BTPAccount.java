@@ -89,8 +89,7 @@ public class BTPAccount {
         return this.extra;
     }
 
-    /* 
-     This method returns the account type of this bank account.
+    /** This method returns the account type of this bank account.
      @return BTPAccountType Returns the account type of the BTPAccount
      @see BTPAccountType
      */
