@@ -116,12 +116,7 @@ public abstract class BTPProtocolHelper {
         this.getPrintStream().println(customer.getFirstname());
         this.getPrintStream().println(customer.getMiddlename());
         this.getPrintStream().println(customer.getSurname());
-        this.getPrintStream().println(Integer.toString(customer.getExtraDetail().getTotalKeys()));
-        for (int i = 0; i < customer.getExtraDetail().getTotalKeys(); i++) {
-            BTPKey key = customer.getExtraDetail().getKey(i);
-            this.getPrintStream().println(key.getIndexName());
-            this.getPrintStream().println(key.getValue());
-        }
+        this.writeKeyContainerToSocket(customer.getExtraDetail());
     }
 
     public BTPCustomer readCustomerFromSocket() throws IOException {
@@ -130,16 +125,10 @@ public abstract class BTPProtocolHelper {
         String customer_firstname = this.getBufferedReader().readLine();
         String customer_middlename = this.getBufferedReader().readLine();
         String customer_surname = this.getBufferedReader().readLine();
-        BTPKeyContainer extra = new BTPKeyContainer();
+        BTPKeyContainer extra;
 
-        String value = this.getBufferedReader().readLine();
         // Read in the extra information
-        int total_extras = Integer.parseInt(value);
-        for (int i = 0; i < total_extras; i++) {
-            extra.addKey(new BTPKey(this.getBufferedReader().readLine(),
-                    this.getBufferedReader().readLine()));
-        }
-
+        extra = this.readKeyContainerFromSocket();
         return new BTPCustomer(
                 customer_id,
                 customer_title,
@@ -147,6 +136,25 @@ public abstract class BTPProtocolHelper {
                 customer_middlename,
                 customer_surname,
                 extra);
+    }
+
+    public void writeKeyContainerToSocket(BTPKeyContainer container) {
+        this.getPrintStream().println(Integer.toString(container.getTotalKeys()));
+        for (int i = 0; i < container.getTotalKeys(); i++) {
+            BTPKey key = container.getKey(i);
+            this.getPrintStream().println(key.getIndexName());
+            this.getPrintStream().println(key.getValue());
+        }
+    }
+
+    public BTPKeyContainer readKeyContainerFromSocket() throws IOException {
+        BTPKeyContainer container = new BTPKeyContainer();
+        int total_keys = Integer.parseInt(this.getBufferedReader().readLine());
+        for (int i = 0; i < total_keys; i++) {
+            container.addKey(new BTPKey(this.getBufferedReader().readLine(),
+                    this.getBufferedReader().readLine()));
+        }
+        return container;
     }
 
     protected BTPClient getClient() {
