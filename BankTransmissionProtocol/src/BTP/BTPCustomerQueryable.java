@@ -21,6 +21,5 @@ public interface BTPCustomerQueryable {
     public double getBalance(BTPAccount account) throws BTPPermissionDeniedException, BTPDataException, IOException, Exception;
 
     public BTPTransaction[] getTransactions(BTPAccount account, Date from, Date to) throws BTPPermissionDeniedException, IOException, Exception;
-
-    public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException, BTPDataException, Exception;
+    
 }
