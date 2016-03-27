@@ -41,7 +41,7 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
                 } else {
                     if (this.server.getEventHandler().getBankAccount(
                             new GetBankAccountEvent(this.getClient(), account_to.getAccountNumber())) == null) {
-                         throw new BTP.exceptions.BTPAccountNotFoundException("The bank account could not be found");
+                        throw new BTP.exceptions.BTPAccountNotFoundException("The bank account could not be found");
                     }
                     this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount, false));
                 }
@@ -127,18 +127,18 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
         BTPAccount[] bank_accounts = this.server.getEventHandler().getBankAccountsOfCustomer(
                 new GetBankAccountsOfCustomerEvent(this.getClient(), customer_id)
         );
-        // A default check just in case the event handler does not throw an exception upon their being no bank accounts
-        if (bank_accounts == null || bank_accounts.length == 0) {
-            this.getPrintStream().write(BTPResponseCode.DATA_EXCEPTION);
-            this.getPrintStream().println("Error no bank accounts have been found.");
-        } else {
-            this.getPrintStream().write(BTPResponseCode.ALL_OK);
-            this.getPrintStream().write(bank_accounts.length);
-            for (int i = 0; i < bank_accounts.length; i++) {
-                BTPAccount account = bank_accounts[i];
-                this.writeAccountToSocket(account);
-            }
+
+        if (bank_accounts == null) {
+            throw new BTP.exceptions.BTPDataException(
+                    "Error the event handler returned null when requesting bank accounts of a customer");
         }
+        this.getPrintStream().write(BTPResponseCode.ALL_OK);
+        this.getPrintStream().write(bank_accounts.length);
+        for (int i = 0; i < bank_accounts.length; i++) {
+            BTPAccount account = bank_accounts[i];
+            this.writeAccountToSocket(account);
+        }
+
         return bank_accounts;
     }
 
