@@ -176,7 +176,7 @@ public class Database {
 
     public BTPTransaction[] getTransactions(BTPAccount account, Date date_from, Date date_to) throws SQLException {
         ArrayList<BTPTransaction> transactions = new ArrayList<BTPTransaction>();
-        String sql = "SELECT * FROM `transactions` WHERE (`sender_account` = ? OR (`receiver_account_no` = ? AND `receiver_sort_code` = ?)) AND `transaction_date` >= ? AND `transaction_date` <= ?";
+        String sql = "SELECT * FROM `transactions` WHERE (`sender_account_no` = ? OR (`receiver_account_no` = ? AND `receiver_sort_code` = ?)) AND `transaction_date` >= ? AND `transaction_date` <= ?";
         stmt = db_con.prepareStatement(sql);
         stmt.setInt(1, account.getAccountNumber());
         stmt.setInt(2, account.getAccountNumber());
@@ -189,7 +189,7 @@ public class Database {
             Date date = new Date();
             date.setTime(rs.getLong("transaction_date"));
             BTPTransaction transaction = new BTPTransaction(
-                    new BTPAccount(rs.getInt("sender_account"), this.server.getSystem().getOurBank().getSortcode(), null, null),
+                    new BTPAccount(rs.getInt("sender_account_no"), rs.getString("sender_account_sort_code"), null, null),
                     new BTPAccount(rs.getInt("receiver_account_no"), rs.getString("receiver_sort_code"), null, null),
                     rs.getDouble("amount"),
                     date
@@ -212,14 +212,15 @@ public class Database {
 
     public void newTransaction(BTPTransaction transaction) throws SQLException {
         String sql = "INSERT INTO `transactions` "
-                + "(`transaction_date`, `receiver_account_no`, `receiver_sort_code`, `sender_account`, `amount`) "
-                + "VALUES(?, ?, ?, ?, ?);";
+                + "(`transaction_date`, `receiver_account_no`, `receiver_sort_code`, `sender_account_no`, `sender_account_sort_code`, `amount`) "
+                + "VALUES(?, ?, ?, ?, ?, ?);";
         stmt = db_con.prepareStatement(sql);
         stmt.setLong(1, transaction.getDate().getTime());
         stmt.setInt(2, transaction.getReceiverAccount().getAccountNumber());
         stmt.setString(3, transaction.getReceiverAccount().getSortCode());
         stmt.setInt(4, transaction.getSenderAccount().getAccountNumber());
-        stmt.setDouble(5, transaction.getAmountTransferred());
+        stmt.setString(5, transaction.getSenderAccount().getSortCode());
+        stmt.setDouble(6, transaction.getAmountTransferred());
         stmt.execute();
     }
 
@@ -264,6 +265,7 @@ public class Database {
     public int newCustomer(BTPCustomer customer, String password) throws SQLException, BTPDataException {
         int person_title = getPersonTitleIdByString(customer.getTitle());
         int person_id = -1;
+        int customer_id = -1;
         if (person_title == -1) {
             throw new BTP.exceptions.BTPDataException("An invalid person title was provided");
         }
@@ -284,9 +286,11 @@ public class Database {
         stmt.setInt(1, person_id);
         stmt.setString(2, password);
         stmt.execute();
+        rs = stmt.getGeneratedKeys();
+        customer_id = rs.getInt(1);
         rs.close();
 
-        return person_id;
+        return customer_id;
     }
 
     public BTPAccountType[] getBankAccountTypes() throws SQLException {

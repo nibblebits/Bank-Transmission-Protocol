@@ -6,6 +6,7 @@
 package bankserver;
 
 import BTP.BTPAccount;
+import BTP.BTPCustomer;
 import BTP.BTPKeyContainer;
 import BTP.BTPUser;
 import BTP.exceptions.BTPPermissionDeniedException;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  *
  * @author Daniel
  */
-public class DBCustomer extends BTPUser {
+public class DBCustomer extends BTPCustomer {
 
     private final String password;
     private final Database db;

@@ -27,9 +27,6 @@ import java.util.logging.Logger;
  */
 public class BankServer implements BTPServerEventHandler {
 
-    // The central bank account for this bank.
-    public static final int CENTRAL_BANK_ACCOUNT_NO = 55555555;
-
     public static final int CURRENT_ACCOUNT = 1;
     public static final int SAVINGS_ACCOUNT = 2;
     public static final int STUDENT_OVERDRAFT_ACCOUNT = 3;
@@ -56,16 +53,25 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     public void init() {
-        database = new Database(this);
-        database.setup();
-        this_bank = new BTPBank("22-33-44", "dmwkei38823r238r23amn3b4583j", "127.0.0.1", 4444);
-        this.decimal_format = new DecimalFormat("£##.##");
-
-        system = new BTPSystem(this_bank);
-        BTPServer server = system.newServer(this);
         try {
-            server.listen();
-            System.out.println("Started listening on port " + system.getOurBank().getPort());
+            database = new Database(this);
+            database.setup();
+            this_bank = new BTPBank("22-33-44", "dmwkei38823r238r23amn3b4583j", "127.0.0.1", 4444);
+            this_bank.setBankAccount(new BTPAccount(55555555, this_bank.getSortcode(), null, null));
+            this.decimal_format = new DecimalFormat("£##.##");
+            
+            system = new BTPSystem(this_bank);
+            system.addTrustedBank(new BTPBank("33-44-55", "MASKAMSKWEIJR32734yr734hf3fiwkmdw@", "127.0.0.1", 4445));
+            BTPServer server = system.newServer(this);
+            
+            System.out.println("BTP Bank Server");
+            System.out.println("BTP Build: " + this.getSystem().getBuildVersion());
+            try {
+                server.listen();
+                System.out.println("Started listening on port " + system.getOurBank().getPort());
+            } catch (IOException ex) {
+                Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } catch (IOException ex) {
             Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -120,11 +126,11 @@ public class BankServer implements BTPServerEventHandler {
                             // Take off the selected percentage based on the account type they are part of
                             double balance = account.getBalance();
                             double to_add = Math.abs(balance) / 100 * account.getBalancePercentageChange();
-                            TransferAgent agent = new TransferAgent(this.getDatabase());
+                            TransferAgent agent = new TransferAgent(this);
                             try {
                                 try {
                                     agent.transfer(
-                                            this.getDatabase().getBankAccount(BankServer.CENTRAL_BANK_ACCOUNT_NO),
+                                            this.getDatabase().getBankAccount(this.getSystem().getOurBank().getBankAccount().getAccountNumber()),
                                             account, to_add);
                                 } catch (BTPPermissionDeniedException ex) {
                                     Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
@@ -249,8 +255,34 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized void transfer(RemoteTransferEvent event) throws BTPPermissionDeniedException {
-        throw new BTP.exceptions.BTPPermissionDeniedException("Remote transfers are not allowed.");
+    public synchronized void transfer(RemoteTransferEvent event) throws BTPPermissionDeniedException, BTPDataException, SQLException {
+        BTPAccount account_from = event.getAccountToTransferFrom();
+        BTPAccount account_to = event.getAccountToTransferTo();
+
+        try {
+            TransferAgent transferAgent = new TransferAgent(this);
+            if (event.isIncoming()) {
+                DBAccount account_to_db = this.getDatabase().getBankAccount(account_to.getAccountNumber());
+                try {
+                    transferAgent.transfer(account_from, account_to_db, event.getAmountToTransfer());
+                } catch (SQLException ex) {
+                    Logger.getLogger(SQLException.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new BTP.exceptions.BTPDataException("A database problem occured");
+                }
+            } else {
+                DBAccount account_from_db = this.getDatabase().getBankAccount(account_to.getAccountNumber());
+                try {
+                    transferAgent.transfer(account_from_db, account_to, event.getAmountToTransfer());
+                } catch (SQLException ex) {
+                    Logger.getLogger(SQLException.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new BTP.exceptions.BTPDataException("A database problem occured");
+                }
+            }
+
+        } catch (SQLException ex) {
+            throw new BTP.exceptions.BTPDataException("A problem occured querying the database");
+        }
+
     }
 
     @Override
@@ -262,7 +294,7 @@ public class BankServer implements BTPServerEventHandler {
             DBAccount account_from_db = this.getDatabase().getBankAccount(account_from.getAccountNumber());
             DBAccount account_to_db = this.getDatabase().getBankAccount(account_to.getAccountNumber());
 
-            TransferAgent transferAgent = new TransferAgent(this.getDatabase());
+            TransferAgent transferAgent = new TransferAgent(this);
             try {
                 transferAgent.transfer(account_from_db, account_to_db, event.getAmountToTransfer());
             } catch (SQLException ex) {
@@ -276,8 +308,12 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized BTPCustomer getCustomer(GetCustomerEvent event) {
-        return new BTPCustomer(56, "Mr", "Daniel", "Paul", "McCarthy", null);
+    public synchronized BTPCustomer getCustomer(GetCustomerEvent event) throws BTPDataException {
+        try {
+            return this.getDatabase().getCustomer(event.getCustomerId());
+        } catch (SQLException ex) {
+            throw new BTP.exceptions.BTPDataException("A database error occured");
+        }
     }
 
     @Override
@@ -297,17 +333,14 @@ public class BankServer implements BTPServerEventHandler {
     @Override
     public synchronized BTPTransaction[] getTransactionsOfAccount(GetTransactionsOfBankAccountEvent event) throws BTPDataException, BTPPermissionDeniedException {
         BTPClient client = event.getClient();
-        if (client instanceof BTPServerCustomerClient) {
-            try {
-                BTPTransaction[] transactions = this.getDatabase().getTransactions(
-                        event.getAccount(),
-                        event.getDateFrom(),
-                        event.getDateTo());
-                return transactions;
-            } catch (SQLException ex) {
-                throw new BTP.exceptions.BTPDataException("An issue occured while querying the database");
-            }
+        try {
+            BTPTransaction[] transactions = this.getDatabase().getTransactions(
+                    event.getAccount(),
+                    event.getDateFrom(),
+                    event.getDateTo());
+            return transactions;
+        } catch (SQLException ex) {
+            throw new BTP.exceptions.BTPDataException("An issue occured while querying the database");
         }
-        throw new BTP.exceptions.BTPPermissionDeniedException("Client type is not allowed to view transactions");
     }
 }
