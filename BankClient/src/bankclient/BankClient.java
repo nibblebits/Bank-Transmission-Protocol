@@ -32,6 +32,7 @@ public class BankClient {
         this.navigator = new PageNavigator(this);
         setRunning(true);
     }
+    
     public BTPSystem getSystem() {
         return this.system;
     }
