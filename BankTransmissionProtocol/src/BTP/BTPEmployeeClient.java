@@ -57,7 +57,7 @@ public class BTPEmployeeClient extends BTPConnectorClient implements BTPCustomer
     @Override
     public BTPTransaction[] getTransactions(BTPAccount account, Date from, Date to) throws BTPPermissionDeniedException, IOException, Exception {
         if (this.isAuthenticated()) {
-            return this.getProtocolHelper().getTransactions(account, null, null);
+            return this.getProtocolHelper().getTransactions(account, from, to);
         } else {
             throw new BTP.exceptions.BTPPermissionDeniedException(
                     "You cannot view transactions as this client is not authenticated");
