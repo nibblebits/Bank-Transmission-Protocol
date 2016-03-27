@@ -88,6 +88,14 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         return this.getBankAccounts(customer.getId());
     }
 
+    public BTPAccountType[] getBankAccountTypes() throws BTPPermissionDeniedException, BTPDataException, Exception {
+        if (this.isAuthenticated()) {
+            return this.getProtocolHelper().getBankAccountTypes();
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException("You must be authenticated to retrieve the bank account types");
+        }
+    }
+
     public int createCustomer(BTPCustomer customer, String password) throws BTP.exceptions.BTPPermissionDeniedException,
             BTP.exceptions.BTPDataException, BTP.exceptions.BTPUnknownException, Exception {
         if (this.isAuthenticated()) {
@@ -108,7 +116,7 @@ public class BTPEmployeeClient extends BTPConnectorClient {
     }
 
     public void createBankAccount(BTPCustomer customer, BTPAccount account) {
-
+        
     }
 
     public void setBankAccountDetail(BTPKeyContainer detail) {

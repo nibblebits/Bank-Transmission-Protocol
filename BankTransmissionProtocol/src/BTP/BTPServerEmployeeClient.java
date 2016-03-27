@@ -121,8 +121,17 @@ public class BTPServerEmployeeClient extends BTPServerClient {
                 }
                 break;
             }
-        }
 
+            case BTPOperation.GET_BANK_ACCOUNT_TYPES: {
+                try {
+                    this.getProtocolHelper().handleGetBankAccountTypesEnquiry();
+                } catch (Exception ex) {
+                    this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
+                }
+            }
+            break;
+
+        }
     }
 
     public BTPEmployee getEmployee() {
