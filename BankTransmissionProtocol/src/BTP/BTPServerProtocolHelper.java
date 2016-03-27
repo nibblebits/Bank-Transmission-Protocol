@@ -9,6 +9,7 @@ import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPInvalidAccountTypeException;
 import BTP.exceptions.BTPPermissionDeniedException;
+import BTP.exceptions.BTPUnknownException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -113,7 +114,7 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
     }
 
     public BTPCustomer handleGetCustomerEnquiry()
-            throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, IOException {
+            throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, IOException, BTPUnknownException {
         int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
         BTPCustomer customer = this.server.getEventHandler().getCustomer(
                 new GetCustomerEvent(this.getClient(), customer_id));
