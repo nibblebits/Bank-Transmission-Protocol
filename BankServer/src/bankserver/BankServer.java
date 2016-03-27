@@ -27,15 +27,6 @@ import java.util.logging.Logger;
  */
 public class BankServer implements BTPServerEventHandler {
 
-    public static final int CURRENT_ACCOUNT = 1;
-    public static final int SAVINGS_ACCOUNT = 2;
-    public static final int STUDENT_OVERDRAFT_ACCOUNT = 3;
-    public static final int ELDERLY_SAVINGS_ACCOUNT = 4;
-    public static final int UNDER_18S_ACCOUNT = 5;
-    public static final int SUPER_SAVERS_ACCOUNT = 6;
-    public static final int FEE_FREE_ACCOUNT = 7;
-    public static final int CASUALLY_OVERDRAWN_ACCOUNT = 8;
-
     private Database database = null;
     private BTPBank this_bank = null;
     private BTPSystem system = null;
@@ -56,7 +47,7 @@ public class BankServer implements BTPServerEventHandler {
         try {
             database = new Database(this);
             database.setup();
-            this_bank = new BTPBank("22-33-44", "dmwkei38823r238r23amn3b4583j", "127.0.0.1", 4444);
+            this_bank = new BTPBank("22-33-44", "127.0.0.1", 4444);
             this_bank.setBankAccount(new BTPAccount(55555555, this_bank.getSortcode(), null, null));
             this.decimal_format = new DecimalFormat("£##.##");
 
@@ -127,20 +118,22 @@ public class BankServer implements BTPServerEventHandler {
                         if (account.isInBalance()) {
                             // Take off the selected percentage based on the account type they are part of
                             double balance = account.getBalance();
-                            double to_add = Math.abs(balance) / 100 * account.getBalancePercentageChange();
-                            TransferAgent agent = new TransferAgent(this);
-                            try {
+                            if (balance > 0) {
+                                double to_add = Math.abs(balance) / 100 * account.getBalancePercentageChange();
+                                TransferAgent agent = new TransferAgent(this);
                                 try {
-                                    agent.transfer(
-                                            this.getDatabase().getBankAccount(this.getSystem().getOurBank().getBankAccount().getAccountNumber()),
-                                            account, to_add);
-                                } catch (BTPPermissionDeniedException ex) {
+                                    try {
+                                        agent.transfer(
+                                                this.getDatabase().getBankAccount(this.getSystem().getOurBank().getBankAccount().getAccountNumber()),
+                                                account, to_add);
+                                    } catch (BTPPermissionDeniedException ex) {
+                                        Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                    System.out.println("Added: " + decimal_format.format(to_add)
+                                            + " to bank account: " + account.getAccountNumber());
+                                } catch (SQLException ex) {
                                     Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                                System.out.println("Added: " + decimal_format.format(to_add)
-                                        + " to bank account: " + account.getAccountNumber());
-                            } catch (SQLException ex) {
-                                Logger.getLogger(BankServer.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
                     }
@@ -315,11 +308,6 @@ public class BankServer implements BTPServerEventHandler {
             throw new BTP.exceptions.BTPDataException("The bank account " + event.getAccount().getAccountNumber() + " does not exist");
         }
         return c_account.getBalance();
-    }
-
-    @Override
-    public synchronized void setSavingsAccountInterestRate(SetSavingsAccountInterestRateEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
