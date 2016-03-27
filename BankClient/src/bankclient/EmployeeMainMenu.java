@@ -199,15 +199,14 @@ public class EmployeeMainMenu extends Page {
         account_sortcode_to_send_to = this.scanner.next();
         // Remove the line terminator left over.
         this.scanner.nextLine();
-        System.out.println("Enter the amount to transfer: ");
-        amount = this.scanner.nextDouble();
-        // Remove the line terminator left over.
-        this.scanner.nextLine();
+        System.out.println("Enter the amount to transfer:");
+        amount = Double.parseDouble(this.scanner.nextLine().replace("£", ""));
         try {
             this.btp_client.transfer(new BTPAccount(account_no_to_send_from,
                     this.getBankClient().getSystem().getOurBank().getSortcode(), null, null),
                     new BTPAccount(account_no_to_send_to, account_sortcode_to_send_to, null, null),
                     amount);
+            System.out.println("Transfer Complete");
         } catch (BTPPermissionDeniedException ex) {
             System.err.println("Permission Denied: " + ex.getMessage());
         } catch (Exception ex) {
@@ -233,7 +232,7 @@ public class EmployeeMainMenu extends Page {
     }
 
     public void createBankAccount(int customer_id) {
-        BTPAccountType type = null;
+        BTPAccountType account_type = null;
         BTPKeyContainer extra = new BTPKeyContainer();
         BTPAccountType[] account_types;
         String account_type_name;
@@ -244,16 +243,20 @@ public class EmployeeMainMenu extends Page {
                 System.out.println("Enter the account type: ");
                 account_type_name = this.scanner.nextLine();
                 // Find the account type based on the name inputted.
-                for (BTPAccountType account_type : account_types) {
-                    if (account_type.getName().equalsIgnoreCase(account_type_name)) {
-                        type = account_type;
+                for (BTPAccountType type : account_types) {
+                    if (type.getName().equalsIgnoreCase(account_type_name)) {
+                        account_type = type;
                         break;
                     }
                 }
-                if (type == null) {
+                if (account_type == null) {
                     System.err.println("Please choose a valid account type");
                 }
-            } while (type == null);
+            } while (account_type == null);
+
+            int bank_account_id = this.btp_client.createBankAccount(
+                    customer_id, new BTPAccount(-1, "", account_type, null));
+            System.out.println("Bank account created! ID:"  + bank_account_id);
         } catch (BTPPermissionDeniedException ex) {
             System.err.println("Permission Denied: " + ex.getMessage());
         } catch (BTPDataException ex) {
