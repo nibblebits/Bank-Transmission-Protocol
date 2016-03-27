@@ -6,17 +6,17 @@
 package bankserver;
 
 import BTP.BTPKeyContainer;
-import BTP.BTPUser;
+import BTP.BTPEmployee;
 
 /**
  *
  * @author Daniel
  */
-public class DBEmployee extends BTPUser{
+public class DBEmployee extends BTPEmployee {
 
     private String password;
-    public DBEmployee(int user_id, String title, String firstname, String middlename, String surname, BTPKeyContainer extra, String password) {
-        super(user_id, title, firstname, middlename, surname, extra);
+    public DBEmployee(int employee_id, String title, String firstname, String middlename, String surname, BTPKeyContainer extra, String password) {
+        super(employee_id, title, firstname, middlename, surname, extra);
         this.password = password;
     }
    

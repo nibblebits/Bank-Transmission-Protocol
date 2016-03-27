@@ -9,7 +9,7 @@ package BTP;
  *
  * @author Daniel
  */
-class BTPEmployee extends BTPUser{
+public class BTPEmployee extends BTPUser{
 
     public BTPEmployee(int employee_id, String title, String firstname, String middlename, String surname, BTPKeyContainer extra) {
         super(employee_id, title, firstname, middlename, surname, extra);
