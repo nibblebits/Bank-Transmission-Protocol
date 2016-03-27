@@ -11,6 +11,7 @@ import BTP.BTPCustomer;
 import BTP.BTPKey;
 import BTP.BTPKeyContainer;
 import BTP.BTPTransaction;
+import BTP.exceptions.BTPDataException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -227,7 +228,7 @@ public class Database {
         String sql = "SELECT * FROM `employees`\n"
                 + "INNER JOIN (person) ON `employees`.`person_id` = `person`.`person_id`\n"
                 + "INNER JOIN (titles) ON `person`.`title` = `titles`.`title_id`\n"
-                +  "WHERE `employee_id` = ?\n";
+                + "WHERE `employee_id` = ?\n";
         stmt = db_con.prepareStatement(sql);
         stmt.setInt(1, employee_id);
         rs = stmt.executeQuery();
@@ -239,10 +240,68 @@ public class Database {
                     rs.getString("middlename"),
                     rs.getString("surname"),
                     null,
-                    rs.getString("password"));    
+                    rs.getString("password"));
         }
 
         rs.close();
         return employee;
+    }
+
+    public int getPersonTitleIdByString(String title) throws SQLException {
+        int title_id = -1;
+        String sql = "SELECT `title_id` FROM `titles` WHERE `title` LIKE(?)";
+        stmt = db_con.prepareStatement(sql);
+        stmt.setString(1, title);
+        rs = stmt.executeQuery();
+        if (rs.next()) {
+            title_id = rs.getInt("title_id");
+        }
+
+        rs.close();
+        return title_id;
+    }
+
+    public int newCustomer(BTPCustomer customer, String password) throws SQLException, BTPDataException {
+        int person_title = getPersonTitleIdByString(customer.getTitle());
+        int person_id = -1;
+        if (person_title == -1) {
+            throw new BTP.exceptions.BTPDataException("An invalid person title was provided");
+        }
+        String sql = "INSERT INTO `person` (title, firstname, middlename, surname) VALUES(?, ?, ?, ?)";
+        stmt = db_con.prepareStatement(sql);
+        stmt.setInt(1, person_title);
+        stmt.setString(2, customer.getFirstname());
+        stmt.setString(3, customer.getMiddlename());
+        stmt.setString(4, customer.getSurname());
+        stmt.execute();
+        rs = stmt.getGeneratedKeys();
+        person_id = rs.getInt(1);
+        rs.close();
+
+        // Now we have created a person for this customer lets create the customer record
+        sql = "INSERT INTO `customers` (person_id, password) VALUES(?, ?)";
+        stmt = db_con.prepareStatement(sql);
+        stmt.setInt(1, person_id);
+        stmt.setString(2, password);
+        stmt.execute();
+        rs.close();
+
+        return person_id;
+    }
+
+    public BTPAccountType[] getBankAccountTypes() throws SQLException {
+        ArrayList<BTPAccountType> account_types = new ArrayList<BTPAccountType>();
+        String sql = "SELECT * FROM `bank_account_types`";
+        stmt = db_con.prepareStatement(sql);
+        rs = stmt.executeQuery();
+
+        while (rs.next()) {
+           BTPAccountType account_type = new BTPAccountType(rs.getInt("type_id"), rs.getString("name"));
+           account_types.add(account_type);
+        }
+
+        rs.close();
+
+        return account_types.toArray(new BTPAccountType[account_types.size()]);
     }
 }

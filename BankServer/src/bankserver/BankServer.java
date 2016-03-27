@@ -205,8 +205,8 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized int createCustomer(CreateCustomerEvent event) {
-        return 30;
+    public synchronized int createCustomer(CreateCustomerEvent event) throws BTPPermissionDeniedException, SQLException, BTPDataException {
+        return this.getDatabase().newCustomer(event.getCustomerToCreate(), event.getPassword());
     }
 
     @Override
@@ -215,8 +215,12 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized BTPAccountType[] getBankAccountTypes(GetBankAccountTypesEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public synchronized BTPAccountType[] getBankAccountTypes(GetBankAccountTypesEvent event) throws BTPDataException {
+        try {
+            return this.getDatabase().getBankAccountTypes();
+        } catch (SQLException ex) {
+            throw new BTP.exceptions.BTPDataException("A database issue occured");
+        }
     }
 
     @Override
