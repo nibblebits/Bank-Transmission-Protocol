@@ -134,6 +134,19 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
         return bank_accounts;
     }
 
+    public BTPAccountType[] handleGetBankAccountTypesEnquiry() throws BTPPermissionDeniedException, BTPDataException, Exception {
+        BTPAccountType[] account_types = this.server.getEventHandler().getBankAccountTypes(
+                new GetBankAccountTypesEvent(this.getClient()));
+        
+        this.getPrintStream().write(BTPResponseCode.ALL_OK);
+        this.getPrintStream().println(Integer.toString(account_types.length));
+        for(BTPAccountType account_type : account_types) {
+            this.getPrintStream().println(Integer.toString(account_type.getId()));
+            this.getPrintStream().println(account_type.getName());
+        }
+        
+        return account_types;
+    }
     public void sendExceptionResponseOverSocket(Exception exception) {
         int response_code;
         if (exception instanceof BTP.exceptions.BTPAccountNotFoundException) {

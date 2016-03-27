@@ -122,6 +122,23 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
         return accounts;
     }
     
+    public BTPAccountType[] getBankAccountTypes() throws BTPPermissionDeniedException, BTPDataException, Exception {
+        this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNT_TYPES);
+        int response = this.getBufferedReader().read();
+        if (response != BTPResponseCode.ALL_OK) {
+            String message = this.getBufferedReader().readLine();
+            this.getSystem().throwExceptionById(response, message);
+        }
+        int amount = Integer.parseInt(this.getBufferedReader().readLine());
+        BTPAccountType[] account_types = new BTPAccountType[amount];
+        for (int i = 0; i < amount; i++) {
+            BTPAccountType account_type = new BTPAccountType(
+                    Integer.parseInt(this.getBufferedReader().readLine()),
+                    this.getBufferedReader().readLine());
+            account_types[i] = account_type;
+        }
+        return account_types;
+    }
     public void createBankAccount(int customer_id, BTPAccount bank_account) 
             throws BTPPermissionDeniedException, BTPDataException, Exception {
         this.getPrintStream().write(BTPOperation.CREATE_BANK_ACCOUNT);
