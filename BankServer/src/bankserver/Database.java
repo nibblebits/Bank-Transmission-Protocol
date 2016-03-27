@@ -296,12 +296,26 @@ public class Database {
         rs = stmt.executeQuery();
 
         while (rs.next()) {
-           BTPAccountType account_type = new BTPAccountType(rs.getInt("type_id"), rs.getString("name"));
-           account_types.add(account_type);
+            BTPAccountType account_type = new BTPAccountType(rs.getInt("type_id"), rs.getString("name"));
+            account_types.add(account_type);
         }
 
         rs.close();
 
         return account_types.toArray(new BTPAccountType[account_types.size()]);
+    }
+
+    public int newBankAccount(int customer_id, BTPAccount account) throws SQLException {
+        int bank_account_id = -1;
+        String sql = "INSERT INTO `bank_accounts` (`balance`, `customer_id`, `account_type`) VALUES(?, ?, ?)";
+        stmt = db_con.prepareStatement(sql);
+        stmt.setDouble(1, 0.00);
+        stmt.setInt(2, customer_id);
+        stmt.setInt(3, account.getAccountType().getId());
+        stmt.execute();
+        rs = stmt.getGeneratedKeys();
+        bank_account_id = rs.getInt(1);
+        rs.close();
+        return bank_account_id;
     }
 }

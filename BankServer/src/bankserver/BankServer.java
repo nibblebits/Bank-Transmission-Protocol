@@ -200,8 +200,12 @@ public class BankServer implements BTPServerEventHandler {
     }
 
     @Override
-    public synchronized void createBankAccount(CreateNewBankAccountEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public synchronized int createBankAccount(CreateNewBankAccountEvent event) throws BTPDataException {
+        try {
+            return this.getDatabase().newBankAccount(event.getCustomerId(), event.getBankAccount());
+        } catch (SQLException ex) {
+            throw new BTP.exceptions.BTPDataException("A database error occured");
+        }
     }
 
     @Override
