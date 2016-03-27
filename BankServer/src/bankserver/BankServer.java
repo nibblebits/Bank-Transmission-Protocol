@@ -52,7 +52,7 @@ public class BankServer implements BTPServerEventHandler {
             this.decimal_format = new DecimalFormat("£##.##");
 
             system = new BTPSystem(this_bank);
-            system.addTrustedBank(new BTPBank("33-44-55", "MASKAMSKWEIJR32734yr734hf3fiwkmdw@", "127.0.0.1", 4445));
+            system.addTrustedBank(new BTPBank("33-44-55", "MASKAMSKWEIJR32734yr734hf3fiwkmdw@", "xeno.solutions", 4444));
             BTPServer server = system.newServer(this);
 
             System.out.println("BTP Bank Server");
