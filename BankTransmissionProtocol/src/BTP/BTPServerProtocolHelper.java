@@ -34,6 +34,7 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
                     && account_from.getSortCode().equals(account_to.getSortCode())) {
                 throw new BTP.exceptions.BTPPermissionDeniedException("You may not send money to the same account your sending from.");
             }
+
             if (account_to.getSortCode().equals(server.getSystem().getOurBank().getSortcode())) {
                 if (account_from.getSortCode().equals(server.getSystem().getOurBank().getSortcode())) {
                     this.server.getEventHandler().transfer(new LocalTransferEvent(this.getClient(), account_from, account_to, amount));

@@ -43,6 +43,7 @@ public class BTPServerTransferClient extends BTPServerClient {
 
             if (this.isAuthenticated()) {
                 this.getPrintStream().write(BTPResponseCode.ALL_OK);
+                System.out.println("Transfer client authenticated");
             } else {
                 throw new BTP.exceptions.BTPPermissionDeniedException("Autentication denied. You are not authorized");
             }
@@ -63,7 +64,7 @@ public class BTPServerTransferClient extends BTPServerClient {
                     this.getProtocolHelper().handleTransferEnquiry(
                             new BTPAccount(
                                     account_from_no,
-                                    this.getSystem().getOurBank().getSortcode(),
+                                    this.authenticated_bank.getSortcode(),
                                     null,
                                     null), account_to, amount);
                     this.getPrintStream().write(BTPResponseCode.ALL_OK);
