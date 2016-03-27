@@ -39,12 +39,12 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
                 if (account_from.getSortCode().equals(server.getSystem().getOurBank().getSortcode())) {
                     this.server.getEventHandler().transfer(new LocalTransferEvent(this.getClient(), account_from, account_to, amount));
                 } else {
-                    this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount));
+                    this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount, false));
                 }
             } else {
                 BTPTransferClient client = this.getSystem().newTransferClient(account_to.getSortCode());
                 client.transfer(account_from, account_to, amount);
-                this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount));
+                this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount, true));
             }
             this.getPrintStream().write(BTPResponseCode.ALL_OK);
         } catch (Exception ex) {
