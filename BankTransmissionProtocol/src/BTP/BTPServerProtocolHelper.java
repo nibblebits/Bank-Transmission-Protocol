@@ -27,7 +27,7 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
         this.server = server;
     }
 
-    public void handleTransferEnquiry(BTPAccount account_from, BTPAccount account_to, double amount, boolean remote_transfer) {
+    public void handleTransferEnquiry(BTPAccount account_from, BTPAccount account_to, double amount) {
         try {
             // Little bit of security we don't want people sending money to themselves ;)
             if (account_from.getAccountNumber() == account_to.getAccountNumber()
@@ -35,26 +35,21 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
                 throw new BTP.exceptions.BTPPermissionDeniedException("You may not send money to the same account your sending from.");
             }
             if (account_to.getSortCode().equals(server.getSystem().getOurBank().getSortcode())) {
-                if (remote_transfer) {
-                    this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount));
-                } else {
+                if (account_from.getSortCode().equals(server.getSystem().getOurBank().getSortcode())) {
                     this.server.getEventHandler().transfer(new LocalTransferEvent(this.getClient(), account_from, account_to, amount));
+                } else {
+                    this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount));
                 }
-                this.getPrintStream().write(BTPResponseCode.ALL_OK);
-
             } else {
-
+                BTPTransferClient client = this.getSystem().newTransferClient(account_to.getSortCode());
+                client.transfer(account_from, account_to, amount);
                 this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount));
-                this.getPrintStream().write(BTPResponseCode.ALL_OK);
             }
+            this.getPrintStream().write(BTPResponseCode.ALL_OK);
         } catch (Exception ex) {
             // Send an exception response to the client as their was an error
             this.sendExceptionResponseOverSocket(ex);
         }
-    }
-
-    public void handleTransferEnquiry(BTPAccount account_from, BTPAccount account_to, double amount) {
-        this.handleTransferEnquiry(account_from, account_to, amount, false);
     }
 
     public double handleBalanceEnquiry(BTPAccount account) {

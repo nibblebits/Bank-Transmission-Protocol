@@ -63,9 +63,9 @@ public class BTPServerTransferClient extends BTPServerClient {
                     this.getProtocolHelper().handleTransferEnquiry(
                             new BTPAccount(
                                     account_from_no,
-                                    this.authenticated_bank.getSortcode(),
+                                    this.getSystem().getOurBank().getSortcode(),
                                     null,
-                                    null), account_to, amount, true);
+                                    null), account_to, amount);
                     this.getPrintStream().write(BTPResponseCode.ALL_OK);
                 } catch (Exception ex) {
                     this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
