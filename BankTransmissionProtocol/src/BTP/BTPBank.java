@@ -43,7 +43,7 @@ public class BTPBank {
         return this.bank_sortcode;
     }
 
-    /* 
+    /*
      @return String Returns the authentication code of this bank
      */
     public String getAuthCode() {

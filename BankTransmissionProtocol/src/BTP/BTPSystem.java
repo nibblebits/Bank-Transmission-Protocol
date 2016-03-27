@@ -5,9 +5,11 @@
  */
 package BTP;
 
+import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPBankNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
+import BTP.exceptions.BTPUnknownException;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -61,10 +63,12 @@ public class BTPSystem {
         throw new BTPPermissionDeniedException("Failed to login as an administrator permission denied.");
     }
 
-    public synchronized BTPTransferClient newTransferClient(String bank_sortcode) throws BTPBankNotFoundException, IOException, BTPPermissionDeniedException {
+    public synchronized BTPTransferClient newTransferClient(String bank_sortcode) 
+            throws BTPAccountNotFoundException, BTPBankNotFoundException,
+            BTPPermissionDeniedException, BTPDataException, BTPUnknownException, Exception {
         BTPBank receiver_bank = this.getTrustedBank(bank_sortcode);
         if (bank == null) {
-            throw new BTPBankNotFoundException("Transfer is not possible as their is no bank could be found with the sortcode " + bank_sortcode);
+            throw new BTPBankNotFoundException("Transfer is not possible as no bank with the sortcode " + bank_sortcode + " could be found");
         }
 
         // We must connect to the receiver bank to request a transfer

@@ -9,7 +9,6 @@ import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPInvalidAccountTypeException;
 import BTP.exceptions.BTPPermissionDeniedException;
-import BTP.exceptions.BTPUnknownException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -28,7 +27,7 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
         this.server = server;
     }
 
-    public void handleTransferEnquiry(BTPAccount account_from, BTPAccount account_to, double amount) {
+    public void handleTransferEnquiry(BTPAccount account_from, BTPAccount account_to, double amount, boolean remote_transfer) {
         try {
             // Little bit of security we don't want people sending money to themselves ;)
             if (account_from.getAccountNumber() == account_to.getAccountNumber()
@@ -36,8 +35,11 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
                 throw new BTP.exceptions.BTPPermissionDeniedException("You may not send money to the same account your sending from.");
             }
             if (account_to.getSortCode().equals(server.getSystem().getOurBank().getSortcode())) {
-
-                this.server.getEventHandler().transfer(new LocalTransferEvent(this.getClient(), account_from, account_to, amount));
+                if (remote_transfer) {
+                    this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount));
+                } else {
+                    this.server.getEventHandler().transfer(new LocalTransferEvent(this.getClient(), account_from, account_to, amount));
+                }
                 this.getPrintStream().write(BTPResponseCode.ALL_OK);
 
             } else {
@@ -49,6 +51,10 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
             // Send an exception response to the client as their was an error
             this.sendExceptionResponseOverSocket(ex);
         }
+    }
+
+    public void handleTransferEnquiry(BTPAccount account_from, BTPAccount account_to, double amount) {
+        this.handleTransferEnquiry(account_from, account_to, amount, false);
     }
 
     public double handleBalanceEnquiry(BTPAccount account) {
@@ -139,17 +145,17 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
     public BTPAccountType[] handleGetBankAccountTypesEnquiry() throws BTPPermissionDeniedException, BTPDataException, Exception {
         BTPAccountType[] account_types = this.server.getEventHandler().getBankAccountTypes(
                 new GetBankAccountTypesEvent(this.getClient()));
-        
+
         this.getPrintStream().write(BTPResponseCode.ALL_OK);
         this.getPrintStream().println(Integer.toString(account_types.length));
-        for(BTPAccountType account_type : account_types) {
+        for (BTPAccountType account_type : account_types) {
             this.getPrintStream().println(Integer.toString(account_type.getId()));
             this.getPrintStream().println(account_type.getName());
         }
-        
+
         return account_types;
     }
-    
+
     public void sendExceptionResponseOverSocket(Exception exception) {
         int response_code;
         if (exception instanceof BTP.exceptions.BTPAccountNotFoundException) {
