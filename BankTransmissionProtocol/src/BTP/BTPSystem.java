@@ -67,7 +67,7 @@ public class BTPSystem {
             throws BTPAccountNotFoundException, BTPBankNotFoundException,
             BTPPermissionDeniedException, BTPDataException, BTPUnknownException, Exception {
         BTPBank receiver_bank = this.getTrustedBank(bank_sortcode);
-        if (bank == null) {
+        if (receiver_bank == null) {
             throw new BTPBankNotFoundException("Transfer is not possible as no bank with the sortcode " + bank_sortcode + " could be found");
         }
 
