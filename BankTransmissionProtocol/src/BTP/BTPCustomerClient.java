@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author Daniel
  */
-public class BTPCustomerClient extends BTPConnectorClient {
+public class BTPCustomerClient extends BTPConnectorClient implements BTPCustomerQueryable {
 
     private int customer_id = -1;
 

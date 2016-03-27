@@ -11,12 +11,13 @@ import BTP.exceptions.BTPPermissionDeniedException;
 import BTP.exceptions.BTPUnknownException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Date;
 
 /**
  *
  * @author Daniel
  */
-public class BTPEmployeeClient extends BTPConnectorClient {
+public class BTPEmployeeClient extends BTPConnectorClient implements BTPCustomerQueryable {
 
     public BTPEmployeeClient(BTPSystem system, Socket socket) throws IOException {
         super(system, socket);
@@ -53,8 +54,8 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         }
     }
 
-    public BTPTransaction[] getTransactions(BTPAccount account)
-            throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, BTPUnknownException, Exception {
+    @Override
+    public BTPTransaction[] getTransactions(BTPAccount account, Date from, Date to) throws BTPPermissionDeniedException, IOException, Exception {
         if (this.isAuthenticated()) {
             return this.getProtocolHelper().getTransactions(account, null, null);
         } else {
@@ -138,5 +139,10 @@ public class BTPEmployeeClient extends BTPConnectorClient {
 
     public void setBankAccountDetail(BTPKeyContainer detail) {
 
+    }
+
+    @Override
+    public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException, BTPDataException, Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
