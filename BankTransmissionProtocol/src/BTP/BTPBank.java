@@ -21,12 +21,14 @@ public class BTPBank {
     private final String bank_authcode;
     private final String bank_address;
     private final int bank_port;
+    private BTPAccount bank_account;
 
     public BTPBank(String bank_sortcode, String bank_address, int bank_port) {
         this.bank_sortcode = bank_sortcode;
         this.bank_address = bank_address;
         this.bank_port = bank_port;
         this.bank_authcode = "";
+        this.bank_account = null;
     }
 
     public BTPBank(String bank_sortcode, String bank_authcode, String bank_address, int bank_port) {
@@ -34,6 +36,7 @@ public class BTPBank {
         this.bank_authcode = bank_authcode;
         this.bank_address = bank_address;
         this.bank_port = bank_port;
+        this.bank_account = null;
     }
 
     /* 
@@ -62,5 +65,13 @@ public class BTPBank {
      */
     public int getPort() {
         return this.bank_port;
+    }
+    
+    public void setBankAccount(BTPAccount account) {
+        this.bank_account = account;
+    }
+    
+    public BTPAccount getBankAccount() {
+        return this.bank_account;
     }
 }
