@@ -16,19 +16,19 @@ import java.util.Date;
  * @author Daniel
  */
 public class BTPServerCustomerClient extends BTPServerClient {
-
+    
     private BTPCustomer customer;
-
+    
     public BTPServerCustomerClient(BTPSystem system, BTPServer server, Socket client) throws IOException {
         super(system, server, client);
         this.customer = null;
     }
-
+    
     @Override
     public void run() {
         super.run();
     }
-
+    
     @Override
     protected void authenticate() throws Exception {
         int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
@@ -56,7 +56,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
         // Flush the print stream
         this.getPrintStream().flush();
     }
-
+    
     @Override
     protected void handleOperation(int opcode) throws Exception {
         switch (opcode) {
@@ -64,15 +64,25 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 int account_from_no = Integer.parseInt(this.getBufferedReader().readLine());
                 BTPAccount account_from = this.getBankAccount(account_from_no);
                 BTPAccount account_to = this.getProtocolHelper().readAccountFromSocket(true);
-                if (account_from == null) {
-                    throw new BTP.exceptions.BTPAccountNotFoundException("The account you are transfeering "
-                            + "from does not exist or is not yours");
-                }
                 double amount = Double.parseDouble(this.getBufferedReader().readLine());
-                this.getProtocolHelper().handleTransferEnquiry(account_from, account_to, amount);
+                try {
+                    if (account_from == null) {
+                        throw new BTP.exceptions.BTPAccountNotFoundException("The account you are transfeering "
+                                + "from does not exist or is not yours");
+                    }
+                    
+                    if (account_to.getSortCode().equals(this.getSystem().getOurBank().getSortcode())) {
+                        if (this.getBankAccount(account_to.getAccountNumber()) == null ) {
+                            throw new BTP.exceptions.BTPAccountNotFoundException("The bank account could not be found");
+                        }
+                    }
+                    this.getProtocolHelper().handleTransferEnquiry(account_from, account_to, amount);
+                } catch (Exception ex) {
+                    this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
+                }
             }
             break;
-
+            
             case BTPOperation.GET_BANK_ACCOUNTS: {
                 try {
                     this.getProtocolHelper().handleGetBankAccountsOfCustomerEnquiry(this.getCustomer().getId());
@@ -82,7 +92,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                 }
             }
             break;
-
+            
             case BTPOperation.GET_BALANCE: {
                 int account_no = Integer.parseInt(this.getBufferedReader().readLine());
                 try {
@@ -90,21 +100,21 @@ public class BTPServerCustomerClient extends BTPServerClient {
                     if (account == null) {
                         throw new BTP.exceptions.BTPAccountNotFoundException("This bank account does not exist or is not yours.");
                     }
-
+                    
                     this.getProtocolHelper().handleBalanceEnquiry(account);
-
+                    
                 } catch (Exception ex) {
                     this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
                 }
-
+                
             }
             break;
-
+            
             case BTPOperation.GET_TRANSACTIONS: {
                 BTPAccount account;
                 Date date_from = new Date();
                 Date date_to = new Date();
-
+                
                 int account_no = Integer.parseInt(this.getBufferedReader().readLine());
                 try {
                     account = this.getBankAccount(account_no);
@@ -115,7 +125,7 @@ public class BTPServerCustomerClient extends BTPServerClient {
                     }
                     date_from.setTime(Long.valueOf(this.getBufferedReader().readLine()));
                     date_to.setTime(Long.valueOf(this.getBufferedReader().readLine()));
-
+                    
                     this.getProtocolHelper().handleTransactionsEnquiry(account, date_from, date_to);
                 } catch (BTPPermissionDeniedException ex) {
                     this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
@@ -124,11 +134,11 @@ public class BTPServerCustomerClient extends BTPServerClient {
             break;
         }
     }
-
+    
     public BTPCustomer getCustomer() {
         return this.customer;
     }
-
+    
     protected BTPAccount getBankAccount(int id) throws BTPPermissionDeniedException, BTPDataException, Exception {
         BTPAccount account = this.getServer().getEventHandler().getBankAccount(new GetBankAccountEvent(this, id));
         if (account != null) {

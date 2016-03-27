@@ -61,6 +61,11 @@ public class BTPServerTransferClient extends BTPServerClient {
                     int account_from_no = Integer.parseInt(this.getBufferedReader().readLine());
                     BTPAccount account_to = this.getProtocolHelper().readAccountFromSocket(true);
                     double amount = Double.parseDouble(this.getBufferedReader().readLine());
+                    if(this.getServer().getEventHandler().getBankAccount(
+                            new GetBankAccountEvent(this, account_to.getAccountNumber())) == null) {
+                        throw new BTP.exceptions.BTPAccountNotFoundException(
+                                "The bank account " + account_to.getAccountNumber() + " could not be found");
+                    }
                     this.getProtocolHelper().handleTransferEnquiry(
                             new BTPAccount(
                                     account_from_no,
