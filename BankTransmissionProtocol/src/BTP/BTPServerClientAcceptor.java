@@ -5,9 +5,7 @@
  */
 package BTP;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -46,10 +44,8 @@ public class BTPServerClientAcceptor implements Runnable {
                                 client = new BTPServerEmployeeClient(server.getSystem(), server, socket);
                             } else if (auth_type == BTPClient.Transfer) { // Transfer Login
                                 client = new BTPServerTransferClient(server.getSystem(), server, socket);
-                            } else if (auth_type == BTPClient.Administrator) { // Administrator Login
-                                client = new BTPServerAdministratorClient(server.getSystem(), server, socket);
                             }
-
+                            
                             if (client != null) {
                                 server.addClient(client);
                                 // we are already in a thread so no need to create another one. Just invoke its run method

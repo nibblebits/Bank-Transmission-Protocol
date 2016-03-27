@@ -52,17 +52,6 @@ public class BTPSystem {
         return null;
     }
 
-    public synchronized BTPAdministratorClient newAdministrtorClientFromLogin(int admin_id, String password) throws IOException, BTPPermissionDeniedException {
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress(this.bank.getAddress(), this.bank.getPort()), 5000);
-        BTPAdministratorClient client = new BTPAdministratorClient(this, socket);
-        if (client.login(admin_id, password)) {
-            return client;
-        }
-
-        throw new BTPPermissionDeniedException("Failed to login as an administrator permission denied.");
-    }
-
     public synchronized BTPTransferClient newTransferClient(String bank_sortcode) 
             throws BTPAccountNotFoundException, BTPBankNotFoundException,
             BTPPermissionDeniedException, BTPDataException, BTPUnknownException, Exception {

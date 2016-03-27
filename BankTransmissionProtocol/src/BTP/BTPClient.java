@@ -20,8 +20,7 @@ public abstract class BTPClient {
     public static int Customer = 0;
     public static int Employee = 1;
     public static int Transfer = 2;
-    public static int Administrator = 3;
-
+    
     private Socket socket;
     private BTPSystem system;
     private boolean authenticated;

@@ -34,8 +34,6 @@ public abstract class BTPConnectorClient extends BTPClient {
             this.getPrintStream().write(BTPClient.Customer);
         } else if (this instanceof BTPEmployeeClient) {
             this.getPrintStream().write(BTPClient.Employee);
-        } else if (this instanceof BTPAdministratorClient) {
-            this.getPrintStream().write(BTPClient.Administrator);
         } else if (this instanceof BTPTransferClient) {
             this.getPrintStream().write(BTPClient.Transfer);
         }
