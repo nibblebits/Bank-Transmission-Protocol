@@ -137,12 +137,10 @@ public class BTPEmployeeClient extends BTPConnectorClient implements BTPCustomer
         return this.createBankAccount(customer.getId(), account);
     }
 
-    public void setBankAccountDetail(BTPKeyContainer detail) {
-
-    }
 
     @Override
     public BTPAccount[] getBankAccounts() throws BTPPermissionDeniedException, IOException, BTPDataException, Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException(
+                "Selecting customers is not yet supported. Therefore this method is not yet implemented");
     }
 }

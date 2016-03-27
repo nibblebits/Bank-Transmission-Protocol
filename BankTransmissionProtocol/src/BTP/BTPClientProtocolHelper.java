@@ -105,7 +105,7 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
             BTPDataException, BTPUnknownException, Exception {
         this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNTS);
         /* Only send the customer id if this is not a customer client, 
-        as customers can only get bank accounts of their own customer account*/
+         as customers can only get bank accounts of their own customer account*/
         if (!(this.getClient() instanceof BTPCustomerClient)) {
             this.getPrintStream().println(Integer.toString(customer_id));
         }
@@ -121,7 +121,7 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
         }
         return accounts;
     }
-    
+
     public BTPAccountType[] getBankAccountTypes() throws BTPPermissionDeniedException, BTPDataException, Exception {
         this.getPrintStream().write(BTPOperation.GET_BANK_ACCOUNT_TYPES);
         int response = this.getBufferedReader().read();
@@ -139,7 +139,8 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
         }
         return account_types;
     }
-    public int createBankAccount(int customer_id, BTPAccount bank_account) 
+
+    public int createBankAccount(int customer_id, BTPAccount bank_account)
             throws BTPPermissionDeniedException, BTPDataException, Exception {
         this.getPrintStream().write(BTPOperation.CREATE_BANK_ACCOUNT);
         this.getPrintStream().println(Integer.toString(customer_id));
@@ -149,7 +150,8 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
             String message = this.getBufferedReader().readLine();
             this.getSystem().throwExceptionById(response, message);
         }
-        
+
         return Integer.parseInt(this.getBufferedReader().readLine());
     }
+
 }
