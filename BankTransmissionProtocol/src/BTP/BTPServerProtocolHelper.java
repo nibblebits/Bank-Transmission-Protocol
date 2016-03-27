@@ -39,6 +39,10 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
                 if (account_from.getSortCode().equals(server.getSystem().getOurBank().getSortcode())) {
                     this.server.getEventHandler().transfer(new LocalTransferEvent(this.getClient(), account_from, account_to, amount));
                 } else {
+                    if (this.server.getEventHandler().getBankAccount(
+                            new GetBankAccountEvent(this.getClient(), account_to.getAccountNumber())) == null) {
+                         throw new BTP.exceptions.BTPAccountNotFoundException("The bank account could not be found");
+                    }
                     this.server.getEventHandler().transfer(new RemoteTransferEvent(this.getClient(), account_from, account_to, amount, false));
                 }
             } else {
