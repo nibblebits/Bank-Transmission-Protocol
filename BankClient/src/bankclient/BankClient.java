@@ -28,6 +28,7 @@ public class BankClient {
 
     public BankClient() {
         this.system = new BTPSystem(new BTPBank("22-33-44", "127.0.0.1", 4444));
+        this.system.getOurBank().setBankAccount(new BTPAccount(55555555, "22-33-44", null, null));
         this.scanner = new Scanner(System.in);
         this.navigator = new PageNavigator(this);
         setRunning(true);

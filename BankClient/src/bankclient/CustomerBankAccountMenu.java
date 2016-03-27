@@ -7,6 +7,7 @@ package bankclient;
 
 import BTP.BTPAccount;
 import BTP.BTPCustomerClient;
+import BTP.BTPCustomerQueryable;
 import BTP.BTPTransaction;
 import BTP.exceptions.BTPDataException;
 import BTP.exceptions.BTPPermissionDeniedException;
@@ -29,14 +30,14 @@ import java.util.logging.Logger;
  */
 public class CustomerBankAccountMenu extends Page {
 
-    private BTPCustomerClient btp_client;
+    private BTPCustomerQueryable btp_client;
     private Scanner scanner;
     private BTPAccount bank_account;
     private SimpleDateFormat default_date_format;
-    
+
     public CustomerBankAccountMenu(BankClient client, BTPAccount bank_account) {
         super(client);
-        this.btp_client = (BTPCustomerClient) client.getBTPClient();
+        this.btp_client = (BTPCustomerQueryable) client.getBTPClient();
         this.scanner = this.getBankClient().getScanner();
         this.bank_account = bank_account;
         this.default_date_format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -99,7 +100,7 @@ public class CustomerBankAccountMenu extends Page {
         do {
             System.out.println("Enter the date from: e.g " + date_str);
             try {
-                date_from = default_date_format.parse(this.scanner.next() + " 0:0:0");
+                date_from = default_date_format.parse(this.scanner.nextLine() + " 0:0:0");
                 break;
             } catch (ParseException ex) {
                 System.err.println("Please enter a valid from date! Format: " + date_str);
@@ -109,7 +110,7 @@ public class CustomerBankAccountMenu extends Page {
         do {
             System.out.println("Enter the date to: e.g " + date_str);
             try {
-                date_to = default_date_format.parse(this.scanner.next() + " 23:59:59");
+                date_to = default_date_format.parse(this.scanner.nextLine() + " 23:59:59");
                 break;
             } catch (ParseException ex) {
                 System.err.println("Please enter a valid to date! Format: " + date_str);
@@ -118,10 +119,10 @@ public class CustomerBankAccountMenu extends Page {
 
         this.outputTransactions(System.out, date_from, date_to);
         System.out.println("Would you like to save this information to a file? Y/N");
-        String response = scanner.next();
+        String response = scanner.nextLine();
         if (response.equals("Y") || response.equals("y")) {
             System.out.println("Enter the filename: ");
-            String filename = scanner.next();
+            String filename = scanner.nextLine();
             try {
                 FileOutputStream f_out = new FileOutputStream(filename);
                 this.outputTransactions(new PrintStream(f_out), date_from, date_to);
@@ -129,7 +130,7 @@ public class CustomerBankAccountMenu extends Page {
             } catch (IOException ex) {
                 System.err.println("Woops we couldn't open the file: " + ex.getMessage());
             }
-            
+
         }
     }
 
@@ -139,10 +140,14 @@ public class CustomerBankAccountMenu extends Page {
         double amount;
         System.out.println("Enter the account number to transfer to: ");
         account_no = scanner.nextInt();
+        // Clear new line left over by previous scan.
+        scanner.nextLine();
         System.out.println("Enter the sortcode: ");
-        sortcode = scanner.next();
+        sortcode = scanner.nextLine();
         System.out.println("Enter the amount to transfer: ");
         amount = scanner.nextDouble();
+        // Clear new line left over by previous scan.
+        scanner.nextLine();
         try {
             this.btp_client.transfer(this.bank_account, new BTPAccount(account_no, sortcode, null, null), amount);
             System.out.println("Transfer complete!");
@@ -153,6 +158,8 @@ public class CustomerBankAccountMenu extends Page {
 
     public boolean selectOption() {
         int option = this.scanner.nextInt();
+        // Clear new line left over by previous scan.
+        scanner.nextLine();
         switch (option) {
             case 1: { // View balance
                 showBalance();

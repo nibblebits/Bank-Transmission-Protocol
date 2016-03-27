@@ -104,7 +104,7 @@ public class EmployeeMainMenu extends Page {
                 String value = this.scanner.nextLine();
                 extra.addKey(new BTPKey(key, value));
             }
-        } while (!response.equals("N"));
+        } while (!response.equalsIgnoreCase("N"));
 
         int customer_id;
         try {
@@ -264,10 +264,15 @@ public class EmployeeMainMenu extends Page {
         } catch (Exception ex) {
             Logger.getLogger(EmployeeMainMenu.class.getName()).log(Level.SEVERE, null, ex);
         }
-        // if(isValidAccountType())
-
     }
 
+    public void listCustomerBankAccounts() {
+        System.out.println("Enter the customer id whose accounts you wish to list: ");
+        int customer_id = this.scanner.nextInt();
+        // Clear the new line thats left over
+        this.scanner.nextLine();
+        this.listBankAccountsOfCustomer(customer_id);
+    }
     public boolean selectOption() {
         int option = this.scanner.nextInt();
         // Remove the line terminator left over.
@@ -290,7 +295,7 @@ public class EmployeeMainMenu extends Page {
             }
             break;
             case 5: { // List customer bank accounts
-
+                listCustomerBankAccounts();
             }
             break;
             case 6: { // Get customer information

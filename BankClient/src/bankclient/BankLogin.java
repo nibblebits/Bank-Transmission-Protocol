@@ -34,7 +34,6 @@ public class BankLogin extends Page {
         System.out.println("===============");
         System.out.println("1. Customer Login");
         System.out.println("2. Employee Login");
-        System.out.println("3. Administrator Login");
     }
 
     public void customerLogin() {
@@ -103,10 +102,6 @@ public class BankLogin extends Page {
         }
     }
 
-    public void administratorLogin() {
-        System.err.println("Not implemented yet.");
-    }
-
     public void login() {
         this.showLoginTypes();
         System.out.println("Please select what login you would like to do: ");
@@ -115,8 +110,6 @@ public class BankLogin extends Page {
             this.customerLogin();
         } else if (login_type == 2) {
             this.employeeLogin();
-        } else if (login_type == 3) {
-            this.administratorLogin();
         }
     }
 
