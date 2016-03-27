@@ -29,7 +29,7 @@ public class BTPServerClientAcceptor implements Runnable {
     public void run() {
         while (true) {
             try {
-                Socket socket = server_socket.accept();
+                final Socket socket = server_socket.accept();
                 new Thread(new Runnable() {
 
                     @Override
