@@ -53,8 +53,14 @@ public class BTPEmployeeClient extends BTPConnectorClient {
         }
     }
 
-    public BTPTransaction[] getTransactions(BTPAccount account) {
-        return null;
+    public BTPTransaction[] getTransactions(BTPAccount account)
+            throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, BTPUnknownException, Exception {
+        if (this.isAuthenticated()) {
+            return this.getProtocolHelper().getTransactions(account, null, null);
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException(
+                    "You cannot view transactions as this client is not authenticated");
+        }
     }
 
     public BTPAccount getBankAccount(int account_no) throws BTPPermissionDeniedException, BTPAccountNotFoundException, BTPDataException, Exception {

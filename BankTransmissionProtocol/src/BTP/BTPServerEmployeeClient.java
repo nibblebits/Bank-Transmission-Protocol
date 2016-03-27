@@ -11,6 +11,7 @@ import BTP.exceptions.BTPInvalidAccountTypeException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -136,11 +137,33 @@ public class BTPServerEmployeeClient extends BTPServerClient {
                 try {
                     this.getProtocolHelper().handleBankAccountCreationEnquiry();
                 } catch (Exception ex) {
-                  this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
+                    this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
                 }
             }
             break;
 
+            case BTPOperation.GET_TRANSACTIONS: {
+                BTPAccount account;
+                Date date_from = new Date();
+                Date date_to = new Date();
+
+                int account_no = Integer.parseInt(this.getBufferedReader().readLine());
+                try {
+                    account = this.getBankAccount(account_no);
+                    if (account == null) {
+                        throw new BTP.exceptions.BTPPermissionDeniedException(
+                                "This bank account does not exist"
+                        );
+                    }
+                    date_from.setTime(Long.valueOf(this.getBufferedReader().readLine()));
+                    date_to.setTime(Long.valueOf(this.getBufferedReader().readLine()));
+
+                    this.getProtocolHelper().handleTransactionsEnquiry(account, date_from, date_to);
+                } catch (Exception ex) {
+                    this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
+                }
+            }
+            break;
         }
     }
 
