@@ -139,7 +139,7 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
         }
         return account_types;
     }
-    public void createBankAccount(int customer_id, BTPAccount bank_account) 
+    public int createBankAccount(int customer_id, BTPAccount bank_account) 
             throws BTPPermissionDeniedException, BTPDataException, Exception {
         this.getPrintStream().write(BTPOperation.CREATE_BANK_ACCOUNT);
         this.getPrintStream().println(Integer.toString(customer_id));
@@ -149,5 +149,7 @@ public class BTPClientProtocolHelper extends BTPProtocolHelper {
             String message = this.getBufferedReader().readLine();
             this.getSystem().throwExceptionById(response, message);
         }
+        
+        return Integer.parseInt(this.getBufferedReader().readLine());
     }
 }

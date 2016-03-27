@@ -99,9 +99,10 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
             BTPAccountNotFoundException, BTPInvalidAccountTypeException, Exception {
         int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
         BTPAccount account = this.readAccountFromSocket();
-        this.server.getEventHandler().createBankAccount(
+        int bank_account_id = this.server.getEventHandler().createBankAccount(
                 new CreateNewBankAccountEvent(this.getClient(), customer_id, account));
         this.getPrintStream().write(BTPResponseCode.ALL_OK);
+        this.getPrintStream().println(Integer.toString(bank_account_id));
     }
 
     public BTPCustomer handleGetCustomerEnquiry()
