@@ -111,12 +111,23 @@ public class BTPEmployeeClient extends BTPConnectorClient {
             return this.getProtocolHelper().getCustomer(customer_id);
         } else {
             throw new BTP.exceptions.BTPPermissionDeniedException(
-                    "Permission denied, you must be logged in to retrieve a customer");
+                    "Permission denied, you must be authenticated to retrieve a customer");
         }
     }
 
-    public void createBankAccount(BTPCustomer customer, BTPAccount account) {
-        
+    public void createBankAccount(int customer_id, BTPAccount account)
+            throws BTPPermissionDeniedException, BTPDataException, Exception {
+        if (this.isAuthenticated()) {
+            this.getProtocolHelper().createBankAccount(customer_id, account);
+        } else {
+            throw new BTP.exceptions.BTPPermissionDeniedException(
+                    "Permission denied, you must be authenticated to create bank accounts");
+        }
+    }
+
+    public void createBankAccount(BTPCustomer customer, BTPAccount account)
+            throws BTPPermissionDeniedException, BTPDataException, Exception {
+        this.createBankAccount(customer.getId(), account);
     }
 
     public void setBankAccountDetail(BTPKeyContainer detail) {

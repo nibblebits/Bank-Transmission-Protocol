@@ -7,6 +7,7 @@ package BTP;
 
 import BTP.exceptions.BTPAccountNotFoundException;
 import BTP.exceptions.BTPDataException;
+import BTP.exceptions.BTPInvalidAccountTypeException;
 import BTP.exceptions.BTPPermissionDeniedException;
 import java.io.IOException;
 import java.net.Socket;
@@ -127,6 +128,15 @@ public class BTPServerEmployeeClient extends BTPServerClient {
                     this.getProtocolHelper().handleGetBankAccountTypesEnquiry();
                 } catch (Exception ex) {
                     this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
+                }
+            }
+            break;
+
+            case BTPOperation.CREATE_BANK_ACCOUNT: {
+                try {
+                    this.getProtocolHelper().handleBankAccountCreationEnquiry();
+                } catch (Exception ex) {
+                  this.getProtocolHelper().sendExceptionResponseOverSocket(ex);
                 }
             }
             break;

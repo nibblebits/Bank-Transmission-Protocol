@@ -94,7 +94,7 @@ public class BTPServerProtocolHelper extends BTPProtocolHelper {
         return customer_id;
     }
 
-    public void handleBankCreationEnquiry()
+    public void handleBankAccountCreationEnquiry()
             throws BTPPermissionDeniedException, BTPDataException,
             BTPAccountNotFoundException, BTPInvalidAccountTypeException, Exception {
         int customer_id = Integer.parseInt(this.getBufferedReader().readLine());
